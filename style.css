@@ -1,0 +1,130 @@
+body{
+margin:0;
+background:#0b0e11;
+color:#e6edf3;
+font-family:Segoe UI,Arial;
+overflow:hidden;
+}
+
+/* HEADER */
+header{
+background:#11161c;
+height:48px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 15px;
+border-bottom:1px solid #1f2933;
+}
+
+.logo{color:#ff9800;font-weight:bold}
+
+/* DESKTOP LAYOUT */
+#layout{
+display:grid;
+grid-template-columns:220px 1fr 320px;
+height:calc(100vh - 48px);
+}
+
+/* LEFT */
+#sidebar{
+background:#11161c;
+border-right:1px solid #1f2933;
+padding:10px;
+}
+
+/* CENTER */
+#center{
+display:flex;
+flex-direction:column;
+}
+
+#chartArea{
+flex:1;
+padding:6px;
+}
+
+#bottomPanel{
+height:200px;
+background:#11161c;
+border-top:1px solid #1f2933;
+display:flex;
+flex-direction:column;
+}
+
+.tabs{display:flex;border-bottom:1px solid #222;}
+.tabBtn{
+flex:1;
+padding:8px;
+background:#151b23;
+border:none;
+color:#aaa;
+cursor:pointer;
+}
+.tabBtn.active{background:#0f141a;color:#fff;}
+
+.tabContent{flex:1;overflow:auto;padding:8px}
+
+/* RIGHT PANEL */
+#right{
+background:#11161c;
+border-left:1px solid #1f2933;
+padding:10px;
+overflow:auto;
+}
+
+/* PANEL */
+.panel{
+background:#0f141a;
+border:1px solid #1e2730;
+border-radius:6px;
+padding:10px;
+margin-bottom:10px;
+}
+
+button{
+padding:10px;
+margin:4px 2px;
+border:none;
+border-radius:4px;
+cursor:pointer;
+flex:1;
+}
+
+.buy{background:#00c853}
+.sell{background:#ff5252}
+.blue{background:#2962ff}
+.gray{background:#444;color:#fff}
+
+input{
+width:100%;
+padding:8px;
+margin:4px 0;
+background:#0b0e11;
+border:1px solid #333;
+color:#fff;
+}
+
+.flex{display:flex}
+
+.bid{color:#00e676}
+.ask{color:#ff5252}
+
+/* MOBILE */
+@media(max-width:900px){
+#layout{
+display:flex;
+flex-direction:column;
+height:auto;
+overflow:auto;
+}
+#sidebar{display:none}
+#center{order:1}
+#right{
+order:2;
+border-left:none;
+border-top:1px solid #1f2933;
+}
+#bottomPanel{order:3;height:260px}
+header{flex-direction:column;height:auto;padding:10px}
+}

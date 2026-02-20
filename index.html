@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angle One PRO Trading Simulator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<div class="logo">ANGLE ONE PRO SIM</div>
+<div>Balance ₹<span id="balTop">100000</span> | PnL <span id="pnlTop">0</span></div>
+</header>
+
+<div id="layout">
+
+<!-- LEFT -->
+<div id="sidebar">
+<div class="panel">Watchlist</div>
+</div>
+
+<!-- CENTER -->
+<div id="center">
+
+<div id="chartArea">
+<canvas id="chart"></canvas>
+</div>
+
+<div id="bottomPanel">
+
+<div class="tabs">
+<button class="tabBtn active" onclick="showTab('trades',event)">Trades</button>
+<button class="tabBtn" onclick="showTab('positions',event)">Positions</button>
+<button class="tabBtn" onclick="showTab('orders',event)">Orders</button>
+</div>
+
+<div id="trades" class="tabContent"></div>
+<div id="positions" class="tabContent" style="display:none"></div>
+<div id="orders" class="tabContent" style="display:none"></div>
+
+</div>
+</div>
+
+<!-- RIGHT -->
+<div id="right">
+
+<div class="panel">
+Upload CSV
+<input type="file" id="csvFile">
+<button class="gray" onclick="loadCSV()">LOAD</button>
+</div>
+
+<div class="panel">
+Qty
+<input id="qty" type="number" value="1">
+Limit
+<input id="limit" type="number">
+
+<div class="flex">
+<button class="buy" onclick="buyMarket()">BUY</button>
+<button class="sell" onclick="sellMarket()">SELL</button>
+</div>
+
+<div class="flex">
+<button class="blue" onclick="buyLimit()">LIMIT BUY</button>
+<button class="blue" onclick="sellLimit()">LIMIT SELL</button>
+</div>
+</div>
+
+<div class="panel">
+Balance ₹<span id="bal">100000</span><br>
+Position <span id="pos">0</span><br>
+Avg <span id="avg">0</span><br>
+PnL <span id="pnl">0</span>
+</div>
+
+<div class="panel">
+<h3>Order Book</h3>
+<div id="orderbook"></div>
+</div>
+
+</div>
+</div>
+
+
+
+<script src="script.js"></script>
+</body>
+</html>
