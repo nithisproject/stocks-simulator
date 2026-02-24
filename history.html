@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trading History</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
 body{background:#0b0e11;color:#fff;font-family:"Segoe UI",Arial,sans-serif;padding:20px}
@@ -21,11 +22,12 @@ th{background:#151b23;color:#00e5ff;}
 </table>
 
 <script>
-const supabaseUrl = 'https://mpcvctbrinkzdohjrpth.supabase.co';
-const supabaseKey = 'sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+ const supabaseCLient = window.supabase.createClient(
+    "https://nxwcekpehqmdkelyrzqf.supabase.co",
+    "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
+  );
 
-let userId = localStorage.getItem('userId');
+let userId = sessionStorage.getItem('userId');
 
 async function loadHistory(){
   const { data, error } = await supabaseClient.from('transactions').select('*').eq('user_id', userId).order('created_at',{ascending:false});
