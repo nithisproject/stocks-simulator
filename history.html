@@ -4,43 +4,132 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trading History</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js"></script>
+
 <style>
 body{background:#0b0e11;color:#fff;font-family:"Segoe UI",Arial,sans-serif;padding:20px}
 h2{color:#ff9800}
+button{padding:8px 15px;margin-top:10px;background:#2962ff;border:none;border-radius:6px;color:#fff;cursor:pointer}
 table{width:100%;border-collapse:collapse;margin-top:20px;}
 th,td{border:1px solid #333;padding:8px;text-align:center;}
 th{background:#151b23;color:#00e5ff;}
 </style>
 </head>
 <body>
+
 <h2>Trading History</h2>
+<button onclick="exportPDF()">Export as PDF (Landscape)</button>
+
 <table>
-<thead><tr><th>Type</th><th>Qty</th><th>Price</th><th>PnL</th><th>Date</th></tr></thead>
+<thead>
+<tr>
+<th>Type</th>
+<th>Qty</th>
+<th>Price</th>
+<th>PnL</th>
+<th>Date</th>
+</tr>
+</thead>
 <tbody id="historyBody"></tbody>
 </table>
 
 <script>
- const supabaseCLient = window.supabase.createClient(
-    "https://nxwcekpehqmdkelyrzqf.supabase.co",
-    "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
-  );
+const supabaseClient = supabase.createClient(
+  "https://nxwcekpehqmdkelyrzqf.supabase.co",
+  "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
+);
 
 let userId = sessionStorage.getItem('userId');
+let transactionData = [];
 
+if (!userId) {
+  alert("User not logged in");
+  window.location.href = "login.html";
+}
+
+// ================= LOAD HISTORY =================
 async function loadHistory(){
-  const { data, error } = await supabaseClient.from('transactions').select('*').eq('user_id', userId).order('created_at',{ascending:false});
-  if(data){
+  const { data, error } = await supabaseClient
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert("Error loading history");
+    return;
+  }
+
+  if (data) {
+    transactionData = data;
+
     const tbody = document.getElementById('historyBody');
     tbody.innerHTML = '';
+
     data.forEach(tr => {
-      tbody.innerHTML += `<tr><td>${tr.type}</td><td>${tr.qty||'-'}</td><td>${tr.price||'-'}</td><td>${tr.pnl||0}</td><td>${new Date(tr.created_at).toLocaleString()}</td></tr>`;
+      tbody.innerHTML += `
+        <tr>
+          <td>${tr.type}</td>
+          <td>${tr.qty ?? '-'}</td>
+          <td>${tr.price ?? '-'}</td>
+          <td>${tr.pnl ?? 0}</td>
+          <td>${new Date(tr.created_at).toLocaleString()}</td>
+        </tr>
+      `;
     });
   }
 }
 
 loadHistory();
+
+// ================= EXPORT PDF =================
+function exportPDF() {
+  if (transactionData.length === 0) {
+    alert("No data to export");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+
+  // Landscape A4
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4"
+  });
+
+  doc.setFontSize(14);
+  doc.text("Trading History Report", 14, 15);
+
+  const tableColumn = ["Type", "Qty", "Price", "PnL", "Date"];
+  const tableRows = [];
+
+  transactionData.forEach(tr => {
+    tableRows.push([
+      tr.type,
+      tr.qty ?? '-',
+      tr.price ?? '-',
+      tr.pnl ?? 0,
+      new Date(tr.created_at).toLocaleString()
+    ]);
+  });
+
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 20,
+    theme: "grid",
+    styles: { halign: 'center' },
+    headStyles: { fillColor: [21, 27, 35] }
+  });
+
+  doc.save("Trading_History.pdf");
+}
 </script>
+
 </body>
 </html>

@@ -4,69 +4,285 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profile</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <style>
-body{background:#0b0e11;color:#fff;font-family:"Segoe UI",Arial,sans-serif;padding:20px}
-input,button{padding:10px;margin:5px;border-radius:6px;border:none;}
-button{cursor:pointer;font-weight:bold;}
+body{
+  margin:0;
+  background:linear-gradient(135deg,#0b0e11,#13161c);
+  color:#e6edf3;
+  font-family:"Segoe UI",Arial,sans-serif;
+}
+
+.container{
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
+}
+
+h2{
+  color:#ff9800;
+  margin-bottom:20px;
+}
+
+.card{
+  background:#11161c;
+  border:1px solid #1f2933;
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:25px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+
+.balanceBox{
+  font-size:28px;
+  font-weight:bold;
+  background:linear-gradient(90deg,#00e5ff,#2962ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+label{
+  display:block;
+  margin-top:12px;
+  margin-bottom:5px;
+  color:#9aa4af;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #2a3441;
+  background:#0b0e11;
+  color:#fff;
+  outline:none;
+  transition:0.2s;
+}
+
+input:focus{
+  border-color:#2962ff;
+  box-shadow:0 0 0 2px rgba(41,98,255,0.3);
+}
+
+button{
+  padding:12px 18px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-top:15px;
+  transition:0.2s;
+}
+
+.primary{
+  background:#2962ff;
+  color:white;
+}
+
+.primary:hover{
+  background:#1e4ed8;
+}
+
+.depositBtn{
+  background:#00c853;
+  color:white;
+}
+
+.depositBtn:hover{
+  background:#00a843;
+}
+
+.withdrawBtn{
+  background:#ff5252;
+  color:white;
+}
+
+.withdrawBtn:hover{
+  background:#e04848;
+}
+
+.row{
+  display:flex;
+  gap:15px;
+  margin-top:15px;
+}
+
+.row input{
+  flex:1;
+}
+
+.success{
+  color:#00e676;
+  margin-top:10px;
+}
+
+.error{
+  color:#ff5252;
+  margin-top:10px;
+}
 </style>
 </head>
+
 <body>
-<h2>Profile</h2>
-Name: <input id="name"><br>
-Email: <input id="email"><br>
-Password: <input id="password" type="password"><br>
-Balance: ₹<span id="bal">0</span><br>
-<button onclick="updateProfile()">Update Profile</button><br>
-<input type="number" id="amount" placeholder="Amount">
-<button onclick="deposit()">Deposit</button>
-<button onclick="withdraw()">Withdraw</button>
+
+<div class="container">
+
+<h2>Profile Dashboard</h2>
+
+<div class="card">
+  <div>Current Balance</div>
+  <div class="balanceBox">₹<span id="bal">0</span></div>
+</div>
+
+<div class="card">
+  <h3>Account Details</h3>
+
+  <label>Name</label>
+  <input id="name">
+
+  <label>Email</label>
+  <input id="email">
+
+  <label>Password</label>
+  <input id="password" type="password">
+
+  <button class="primary" onclick="updateProfile()">Update Profile</button>
+  <div id="profileMsg"></div>
+</div>
+
+<div class="card">
+  <h3>Wallet</h3>
+
+  <div class="row">
+    <input type="number" id="amount" placeholder="Enter Amount">
+  </div>
+
+  <div class="row">
+    <button class="depositBtn" onclick="deposit()">Deposit</button>
+    <button class="withdrawBtn" onclick="withdraw()">Withdraw</button>
+  </div>
+
+  <div id="walletMsg"></div>
+</div>
+
+</div>
 
 <script>
- const supabaseCLient = window.supabase.createClient(
-    "https://nxwcekpehqmdkelyrzqf.supabase.co",
+const supabaseClient = window.supabase.createClient(
+  "https://nxwcekpehqmdkelyrzqf.supabase.co",
     "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
-  );
+);
 
 let userId = sessionStorage.getItem('userId');
 let balance = 0;
 
+if(!userId){
+  alert("User not logged in");
+  window.location.href="login.html";
+}
+
+// ================= LOAD PROFILE =================
 async function loadProfile(){
-  const { data: user } = await supabaseClient.from('users').select('*').eq('id',userId).single();
-  const { data: fund } = await supabaseClient.from('funds').select('*').eq('user_id',userId).single();
-  if(user){ document.getElementById('name').value = user.name; document.getElementById('email').value = user.email; }
-  if(fund){ balance = parseFloat(fund.balance); document.getElementById('bal').innerText = balance; }
+  const { data: user } = await supabaseClient
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  const { data: fund } = await supabaseClient
+    .from('funds')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+  if(user){
+    document.getElementById('name').value = user.name || '';
+    document.getElementById('email').value = user.email || '';
+  }
+
+  if(fund){
+    balance = parseFloat(fund.balance) || 0;
+    document.getElementById('bal').innerText = balance.toFixed(2);
+  }
 }
 loadProfile();
 
+// ================= UPDATE PROFILE =================
 async function updateProfile(){
   const name = document.getElementById('name').value;
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-  await supabaseClient.from('users').update({name,email,password}).eq('id',userId);
-  alert('Profile updated');
+
+  const { error } = await supabaseClient
+    .from('users')
+    .update({ name, email, password })
+    .eq('id', userId);
+
+  const msg = document.getElementById('profileMsg');
+
+  if(error){
+    msg.className="error";
+    msg.innerText="Update failed!";
+  } else {
+    msg.className="success";
+    msg.innerText="Profile updated successfully!";
+  }
 }
 
+// ================= DEPOSIT =================
 async function deposit(){
   const amt = parseFloat(document.getElementById('amount').value);
-  if(!amt || amt<=0) return alert('Invalid amount');
+  const msg = document.getElementById('walletMsg');
+
+  if(!amt || amt<=0){
+    msg.className="error";
+    msg.innerText="Invalid amount";
+    return;
+  }
+
   balance += amt;
-  await supabaseClient.from('funds').update({balance}).eq('user_id',userId);
-  await supabaseClient.from('transactions').insert([{user_id:userId,type:'DEPOSIT',qty:null,price:null,pnl:amt}]);
-  document.getElementById('bal').innerText = balance;
-  alert('Deposit successful');
+
+  await supabaseClient.from('funds')
+    .update({ balance })
+    .eq('user_id', userId);
+
+  await supabaseClient.from('transactions')
+    .insert([{ user_id:userId, type:'DEPOSIT', qty:null, price:null, pnl:amt }]);
+
+  document.getElementById('bal').innerText = balance.toFixed(2);
+
+  msg.className="success";
+  msg.innerText="Deposit successful!";
 }
 
+// ================= WITHDRAW =================
 async function withdraw(){
   const amt = parseFloat(document.getElementById('amount').value);
-  if(!amt || amt>balance) return alert('Invalid amount');
+  const msg = document.getElementById('walletMsg');
+
+  if(!amt || amt<=0 || amt>balance){
+    msg.className="error";
+    msg.innerText="Invalid amount";
+    return;
+  }
+
   balance -= amt;
-  await supabaseClient.from('funds').update({balance}).eq('user_id',userId);
-  await supabaseClient.from('transactions').insert([{user_id:userId,type:'WITHDRAW',qty:null,price:null,pnl:-amt}]);
-  document.getElementById('bal').innerText = balance;
-  alert('Withdraw successful');
+
+  await supabaseClient.from('funds')
+    .update({ balance })
+    .eq('user_id', userId);
+
+  await supabaseClient.from('transactions')
+    .insert([{ user_id:userId, type:'WITHDRAW', qty:null, price:null, pnl:-amt }]);
+
+  document.getElementById('bal').innerText = balance.toFixed(2);
+
+  msg.className="success";
+  msg.innerText="Withdraw successful!";
 }
 </script>
+
 </body>
 </html>

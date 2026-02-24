@@ -111,7 +111,7 @@ PnL <span id="pnl">0</span>
 </div>
 
 <script>
- const supabaseCLient = window.supabase.createClient(
+ const supabaseClient = window.supabase.createClient(
     "https://nxwcekpehqmdkelyrzqf.supabase.co",
     "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
   );
@@ -120,7 +120,30 @@ let userId=sessionStorage.getItem('userId');
 let price=0,dataSeries=[],pointer=0,candles=[];
 let balance=0,position=0,avgPrice=0;
 let openOrders=[],tradeHistory=[];
+async function saveTransaction(type, quantity, tradePrice, pnlValue = 0) {
+  if (!userId) {
+    alert("User not logged in");
+    return;
+  }
 
+  const { error } = await supabaseClient
+    .from("transactions")
+    .insert([
+      {
+        user_id: userId,
+        type: type,
+        qty: quantity,
+        price: tradePrice,
+        pnl: pnlValue
+      }
+    ]);
+
+  if (error) {
+    console.error("Transaction insert error:", error);
+  } else {
+    console.log("Transaction saved");
+  }
+}
 // Tabs
 function showTab(id,e){
 document.querySelectorAll(".tabContent").forEach(d=>d.style.display="none");
@@ -225,26 +248,40 @@ renderPositions();
 renderOrders();
 }
 
-function buyMarket(){
-let q=qty();let cost=q*price;
-if(balance>=cost){
-balance-=cost;
-avgPrice=((avgPrice*position)+(price*q))/(position+q);
-position+=q;
-logTrade("BUY",q,price);
-updateUI();
-}
+async function buyMarket() {
+  let q = qty();
+  let cost = q * price;
+
+  if (balance >= cost) {
+    balance -= cost;
+
+    avgPrice = ((avgPrice * position) + (price * q)) / (position + q);
+    position += q;
+
+    logTrade("BUY", q, price);
+    updateUI();
+
+    await saveTransaction("BUY", q, price, 0);
+  }
 }
 
-function sellMarket(){
-let q=qty();
-if(position>=q){
-balance+=q*price;
-position-=q;
-logTrade("SELL",q,price);
-if(position===0)avgPrice=0;
-updateUI();
-}
+async function sellMarket() {
+  let q = qty();
+
+  if (position >= q) {
+    let realizedPnl = (price - avgPrice) * q;
+
+    balance += q * price;
+    position -= q;
+
+    logTrade("SELL", q, price);
+
+    if (position === 0) avgPrice = 0;
+
+    updateUI();
+
+    await saveTransaction("SELL", q, price, realizedPnl);
+  }
 }
 
 function buyLimit(){openOrders.push({type:"BUY",qty:qty(),price:limit()});renderOrders();}
@@ -278,7 +315,7 @@ chart.data.labels=candles.map((_,i)=>i);
 chart.data.datasets[0].data=candles;
 chart.update();
 updateUI();
-setTimeout(loop,800);
+setTimeout(loop,1800);
 }
 </script>
 </body>

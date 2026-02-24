@@ -116,7 +116,7 @@
       .eq("email", email)
       .eq("password", password)
       .single();
-
+    console.log(data);
     if (error || !data) return showMessage("Invalid email or password");
 
     // Store session in sessionStorage
