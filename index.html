@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Simulator - Login/Register</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<style>
+body { font-family:"Segoe UI",Arial,sans-serif; background:#0b0e11; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
+.container { background:rgba(17,22,28,0.95); padding:40px; border-radius:12px; width:320px; }
+h2 { color:#ff9800; text-align:center; }
+input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #333; background:#0b0e11; color:#fff; }
+button { width:100%; padding:10px; margin:8px 0; border:none; border-radius:6px; cursor:pointer; background:#00c853; color:#fff; font-weight:bold; }
+button:hover { transform:scale(1.05); }
+.toggle { color:#00e5ff; cursor:pointer; text-align:center; margin-top:10px; }
+.error { color:#ff5252; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="formTitle">Login</h2>
+  <input type="text" id="name" placeholder="Name" style="display:none">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button id="submitBtn">Login</button>
+  <div class="toggle" id="toggleForm">Don't have an account? Register</div>
+  <div class="error" id="error"></div>
+</div>
+
+<script>
+const supabaseUrl = 'https://mpcvctbrinkzdohjrpth.supabase.co';
+const supabaseKey = 'sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+let isLogin = true;
+const toggleForm = document.getElementById('toggleForm');
+const formTitle = document.getElementById('formTitle');
+const nameInput = document.getElementById('name');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const submitBtn = document.getElementById('submitBtn');
+const errorDiv = document.getElementById('error');
+
+toggleForm.onclick = () => {
+  isLogin = !isLogin;
+  nameInput.style.display = isLogin ? 'none' : 'block';
+  formTitle.innerText = isLogin ? 'Login' : 'Register';
+  submitBtn.innerText = isLogin ? 'Login' : 'Register';
+  toggleForm.innerText = isLogin ? "Don't have an account? Register" : "Already have account? Login";
+};
+
+submitBtn.onclick = async () => {
+  errorDiv.innerText = '';
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  const name = nameInput.value;
+
+  if(!email || !password || (!isLogin && !name)) return errorDiv.innerText="All fields required";
+
+  if(isLogin){
+    const { data, error } = await supabaseClient.from('users').select('*').eq('email', email).eq('password', password).single();
+    if(error || !data) return errorDiv.innerText="Invalid credentials";
+    localStorage.setItem('userId', data.id);
+    window.location.href="trade.html";
+  } else {
+    // Register
+    const { data, error } = await supabaseClient.from('users').insert([{ name, email, password }]).select().single();
+    if(error) return errorDiv.innerText=error.message;
+    // Add initial fund
+    await supabaseClient.from('funds').insert([{ user_id:data.id, balance:100000 }]);
+    localStorage.setItem('userId', data.id);
+    window.location.href="trade.html";
+  }
+};
+</script>
+</body>
+</html>

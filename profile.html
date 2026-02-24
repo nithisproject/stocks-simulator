@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<style>
+body{background:#0b0e11;color:#fff;font-family:"Segoe UI",Arial,sans-serif;padding:20px}
+input,button{padding:10px;margin:5px;border-radius:6px;border:none;}
+button{cursor:pointer;font-weight:bold;}
+</style>
+</head>
+<body>
+<h2>Profile</h2>
+Name: <input id="name"><br>
+Email: <input id="email"><br>
+Password: <input id="password" type="password"><br>
+Balance: ₹<span id="bal">0</span><br>
+<button onclick="updateProfile()">Update Profile</button><br>
+<input type="number" id="amount" placeholder="Amount">
+<button onclick="deposit()">Deposit</button>
+<button onclick="withdraw()">Withdraw</button>
+
+<script>
+const supabaseUrl = 'https://mpcvctbrinkzdohjrpth.supabase.co';
+const supabaseKey = 'sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+let userId = localStorage.getItem('userId');
+let balance = 0;
+
+async function loadProfile(){
+  const { data: user } = await supabaseClient.from('users').select('*').eq('id',userId).single();
+  const { data: fund } = await supabaseClient.from('funds').select('*').eq('user_id',userId).single();
+  if(user){ document.getElementById('name').value = user.name; document.getElementById('email').value = user.email; }
+  if(fund){ balance = parseFloat(fund.balance); document.getElementById('bal').innerText = balance; }
+}
+loadProfile();
+
+async function updateProfile(){
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  await supabaseClient.from('users').update({name,email,password}).eq('id',userId);
+  alert('Profile updated');
+}
+
+async function deposit(){
+  const amt = parseFloat(document.getElementById('amount').value);
+  if(!amt || amt<=0) return alert('Invalid amount');
+  balance += amt;
+  await supabaseClient.from('funds').update({balance}).eq('user_id',userId);
+  await supabaseClient.from('transactions').insert([{user_id:userId,type:'DEPOSIT',qty:null,price:null,pnl:amt}]);
+  document.getElementById('bal').innerText = balance;
+  alert('Deposit successful');
+}
+
+async function withdraw(){
+  const amt = parseFloat(document.getElementById('amount').value);
+  if(!amt || amt>balance) return alert('Invalid amount');
+  balance -= amt;
+  await supabaseClient.from('funds').update({balance}).eq('user_id',userId);
+  await supabaseClient.from('transactions').insert([{user_id:userId,type:'WITHDRAW',qty:null,price:null,pnl:-amt}]);
+  document.getElementById('bal').innerText = balance;
+  alert('Withdraw successful');
+}
+</script>
+</body>
+</html>
