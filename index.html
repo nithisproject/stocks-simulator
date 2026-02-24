@@ -1,78 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trading Simulator - Login/Register</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<style>
-body { font-family:"Segoe UI",Arial,sans-serif; background:#0b0e11; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-.container { background:rgba(17,22,28,0.95); padding:40px; border-radius:12px; width:320px; }
-h2 { color:#ff9800; text-align:center; }
-input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #333; background:#0b0e11; color:#fff; }
-button { width:100%; padding:10px; margin:8px 0; border:none; border-radius:6px; cursor:pointer; background:#00c853; color:#fff; font-weight:bold; }
-button:hover { transform:scale(1.05); }
-.toggle { color:#00e5ff; cursor:pointer; text-align:center; margin-top:10px; }
-.error { color:#ff5252; text-align:center; }
-</style>
+  <title>Auth System</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      width: 350px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; }
+    input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
+    button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #45a049; }
+    .toggle { text-align: center; margin-top: 10px; cursor: pointer; color: blue; }
+    .hidden { display: none; }
+    .message { text-align: center; margin-top: 10px; color: red; }
+  </style>
 </head>
 <body>
 
 <div class="container">
-  <h2 id="formTitle">Login</h2>
-  <input type="text" id="name" placeholder="Name" style="display:none">
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button id="submitBtn">Login</button>
-  <div class="toggle" id="toggleForm">Don't have an account? Register</div>
-  <div class="error" id="error"></div>
+  <!-- REGISTER -->
+  <div id="registerBox">
+    <h2>Register</h2>
+    <input type="text" id="regName" placeholder="Full Name">
+    <input type="email" id="regEmail" placeholder="Email">
+    <input type="password" id="regPassword" placeholder="Password">
+    <button onclick="register()">Register</button>
+    <div class="toggle" onclick="toggleForm()">Already have an account? Login</div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginBox" class="hidden">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div class="toggle" onclick="toggleForm()">Don't have an account? Register</div>
+  </div>
+
+  <div class="message" id="message"></div>
 </div>
 
 <script>
-const supabaseUrl = 'https://mpcvctbrinkzdohjrpth.supabase.co';
-const supabaseKey = 'sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseClient = window.supabase.createClient(
+    "https://nxwcekpehqmdkelyrzqf.supabase.co",
+    "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
+  );
 
-let isLogin = true;
-const toggleForm = document.getElementById('toggleForm');
-const formTitle = document.getElementById('formTitle');
-const nameInput = document.getElementById('name');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const submitBtn = document.getElementById('submitBtn');
-const errorDiv = document.getElementById('error');
-
-toggleForm.onclick = () => {
-  isLogin = !isLogin;
-  nameInput.style.display = isLogin ? 'none' : 'block';
-  formTitle.innerText = isLogin ? 'Login' : 'Register';
-  submitBtn.innerText = isLogin ? 'Login' : 'Register';
-  toggleForm.innerText = isLogin ? "Don't have an account? Register" : "Already have account? Login";
-};
-
-submitBtn.onclick = async () => {
-  errorDiv.innerText = '';
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  const name = nameInput.value;
-
-  if(!email || !password || (!isLogin && !name)) return errorDiv.innerText="All fields required";
-
-  if(isLogin){
-    const { data, error } = await supabaseClient.from('users').select('*').eq('email', email).eq('password', password).single();
-    if(error || !data) return errorDiv.innerText="Invalid credentials";
-    localStorage.setItem('userId', data.id);
-    window.location.href="trade.html";
-  } else {
-    // Register
-    const { data, error } = await supabaseClient.from('users').insert([{ name, email, password }]).select().single();
-    if(error) return errorDiv.innerText=error.message;
-    // Add initial fund
-    await supabaseClient.from('funds').insert([{ user_id:data.id, balance:100000 }]);
-    localStorage.setItem('userId', data.id);
-    window.location.href="trade.html";
+  function toggleForm() {
+    document.getElementById("registerBox").classList.toggle("hidden");
+    document.getElementById("loginBox").classList.toggle("hidden");
+    document.getElementById("message").innerText = "";
   }
-};
+
+  function showMessage(msg, color = "red") {
+    const box = document.getElementById("message");
+    box.style.color = color;
+    box.innerText = msg;
+  }
+
+  async function register() {
+    const name = regName.value.trim();
+    const email = regEmail.value.trim();
+    const password = regPassword.value.trim();
+
+    if (!name || !email || !password) return showMessage("All fields required");
+
+    // Check if email already exists
+    const { data: existing } = await supabaseClient
+      .from("users")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (existing) return showMessage("Email already registered");
+
+    // Insert new user
+    const { data, error } = await supabaseClient
+      .from("users")
+      .insert([{ name, email, password }])
+      .select()
+      .single();
+
+    if (error) return showMessage(error.message);
+
+    // Initialize funds
+    await supabaseClient
+      .from("funds")
+      .insert([{ user_id: data.id, balance: 100000 }]);
+
+    showMessage("Registration successful! Please login.", "green");
+    toggleForm();
+  }
+
+  async function login() {
+    const email = loginEmail.value.trim();
+    const password = loginPassword.value.trim();
+
+    const { data, error } = await supabaseClient
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .eq("password", password)
+      .single();
+
+    if (error || !data) return showMessage("Invalid email or password");
+
+    // Store session in sessionStorage
+    sessionStorage.setItem("userId", data.id);
+    window.location.href = "trade.html";
+  }
 </script>
+
 </body>
 </html>
