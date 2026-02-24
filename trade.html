@@ -3,203 +3,281 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trading Simulator - Trade</title>
+<title>Trading Simulator</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <style>
-/* Reuse the same CSS from your previous layout */
-body{margin:0;background:linear-gradient(135deg,#0b0e11,#13161c);color:#e6edf3;font-family:"Segoe UI",Arial,sans-serif;overflow:hidden;transition:background 0.5s ease;}
-header{background:rgba(17,22,28,0.95);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #1f2933;box-shadow:0 2px 10px rgba(0,0,0,0.3);transition:all 0.3s ease;}
-header:hover{background:rgba(17,22,28,1);}
-.logo{color:#ff9800;font-weight:bold;font-size:1.3rem;text-shadow:0 0 8px #ff9800aa;}
-#layout{display:grid;grid-template-columns:240px 1fr 340px;height:calc(100vh-60px);transition:all 0.3s ease;}
-#sidebar{background: rgba(17,22,28,0.9);border-right:1px solid #1f2933;padding:12px;overflow-y:auto;backdrop-filter:blur(5px);transition:all 0.3s ease;}
-#center{display:flex;flex-direction:column;transition:all 0.3s ease;}
-#chartArea{flex:1;padding:8px;background:rgba(15,20,26,0.8);border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.4);}
-#bottomPanel{height:220px;background:rgba(17,22,28,0.9);border-top:1px solid #1f2933;display:flex;flex-direction:column;border-radius:10px 10px 0 0;overflow:hidden;animation:fadeIn 0.5s ease;}
-.tabs{display:flex;border-bottom:1px solid #222;}
-.tabBtn{flex:1;padding:10px;background:#151b23;border:none;color:#aaa;cursor:pointer;transition:all 0.3s ease;font-weight:500;}
-.tabBtn:hover{background:#0f141a;}
-.tabBtn.active{background:#0f141a;color:#00e5ff;box-shadow:inset 0 -2px #00e5ff;}
-.tabContent{flex:1;overflow:auto;padding:10px;font-size:0.9rem;line-height:1.4;}
-#right{background: rgba(17,22,28,0.9);border-left:1px solid #1f2933;padding:12px;overflow-y:auto;backdrop-filter:blur(5px);transition:all 0.3s ease;}
-.panel{background: rgba(15,20,26,0.8);border:1px solid #1e2730;border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.3);transition:transform 0.2s ease, box-shadow 0.3s ease;}
-.panel:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.4);}
-button{padding:10px;margin:4px 2px;border:none;border-radius:6px;cursor:pointer;flex:1;transition:all 0.2s ease;font-weight:bold;}
-button:hover{transform:scale(1.05);}
-.buy{background:#00c853;box-shadow:0 4px #00a14d;}
-.sell{background:#ff5252;box-shadow:0 4px #d50000;}
-.blue{background:#2962ff;box-shadow:0 4px #0039cb;}
-.gray{background:#444;color:#fff;box-shadow:0 4px #222;}
-input{width:100%;padding:10px;margin:4px 0;background:#0b0e11;border:1px solid #333;color:#fff;border-radius:6px;transition:all 0.2s ease;}
-input:focus{border-color:#00e5ff;box-shadow:0 0 8px #00e5ff66;outline:none;}
-.bid{color:#00e676;}
-.ask{color:#ff5252;}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@media(max-width:900px){#layout{display:flex;flex-direction:column;height:auto;overflow:auto;}#sidebar{display:none;}#center{order:1;}#right{order:2;border-left:none;border-top:1px solid #1f2933;}#bottomPanel{order:3;height:260px;}header{flex-direction:column;height:auto;padding:10px;}}
+body{margin:0;background:linear-gradient(135deg,#0b0e11,#13161c);color:#e6edf3;font-family:"Segoe UI",Arial,sans-serif;}
+header{background:#11161c;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #1f2933;}
+.logo{color:#ff9800;font-weight:bold;font-size:1.3rem;}
+
+#layout{display:grid;grid-template-columns:200px 1fr 320px;height:calc(100vh-60px);}
+#sidebar{background:#11161c;border-right:1px solid #1f2933;padding:15px;}
+#center{display:flex;flex-direction:column;}
+#right{background:#11161c;border-left:1px solid #1f2933;padding:15px;}
+
+.navBtn{display:block;padding:10px;margin-bottom:10px;background:#0f141a;border-radius:6px;text-decoration:none;color:#fff;}
+.navBtn:hover{background:#1e2730;}
+
+.panel{background:#0f141a;border:1px solid #1e2730;border-radius:8px;padding:12px;margin-bottom:12px;}
+
+button{padding:8px;margin:4px 0;border:none;border-radius:6px;cursor:pointer;font-weight:bold;}
+.buy{background:#00c853;}
+.sell{background:#ff5252;}
+.blue{background:#2962ff;}
+
+input{width:75%;padding:8px;margin:5px 0;background:#0b0e11;border:1px solid #333;color:#fff;border-radius:6px;}
+
+#bottomPanel{height:200px;background:#0f141a;border-top:1px solid #1f2933;display:flex;flex-direction:column;}
+.tabs{display:flex;border-bottom:1px solid #1f2933;}
+.tabBtn{flex:1;padding:8px;background:#11161c;border:none;color:#aaa;cursor:pointer;}
+.tabBtn.active{background:#0f141a;color:#00e5ff;}
+.tabContent{flex:1;overflow:auto;padding:10px;font-size:14px;}
 </style>
 </head>
+
 <body>
 
 <header>
-  <div class="logo">TRADING SIMULATOR</div>
-  <div>Balance ₹<span id="balTop">0</span> | PnL <span id="pnlTop">0</span></div>
+<div class="logo">TRADING SIMULATOR</div>
+<div>Balance ₹<span id="balTop">0</span> | PnL <span id="pnlTop">0</span></div>
 </header>
 
 <div id="layout">
 
-<!-- LEFT -->
+<!-- SIDEBAR -->
 <div id="sidebar">
-  <div class="panel">NSE</div>
-  <div class="panel">OIL</div>
-  <div class="panel">FOREX</div>
-  <div class="panel">BITCOIN</div>
+
+<a href="trade.html" class="navBtn">Trade</a>
+<a href="profile.html" class="navBtn">Profile</a>
+<a href="history.html" class="navBtn">History</a>
+
+<div class="panel">
+<h3>NSE Data</h3>
+From
+<input type="date" id="fromDate">
+To
+<input type="date" id="toDate">
+<button class="blue" onclick="loadFromDatabase()">Load Data</button>
+</div>
+
 </div>
 
 <!-- CENTER -->
 <div id="center">
-<div id="chartArea"><canvas id="chart"></canvas></div>
+<div style="flex:1;padding:10px;">
+<canvas id="chart"></canvas>
+</div>
+
 <div id="bottomPanel">
-  <div class="tabs">
-    <button class="tabBtn active" onclick="showTab('trades',event)">Trades</button>
-    <button class="tabBtn" onclick="showTab('positions',event)">Positions</button>
-    <button class="tabBtn" onclick="showTab('orders',event)">Orders</button>
-  </div>
-  <div id="trades" class="tabContent"></div>
-  <div id="positions" class="tabContent" style="display:none"></div>
-  <div id="orders" class="tabContent" style="display:none"></div>
+<div class="tabs">
+<button class="tabBtn active" onclick="showTab('trades',event)">Trades</button>
+<button class="tabBtn" onclick="showTab('positions',event)">Positions</button>
+<button class="tabBtn" onclick="showTab('orders',event)">Orders</button>
+</div>
+
+<div id="trades" class="tabContent"></div>
+<div id="positions" class="tabContent" style="display:none"></div>
+<div id="orders" class="tabContent" style="display:none"></div>
+
 </div>
 </div>
 
-<!-- RIGHT -->
+<!-- RIGHT PANEL -->
 <div id="right">
-<div class="panel">
-  Upload CSV
-  <input type="file" id="csvFile">
-  <button class="gray" onclick="loadCSV()">LOAD</button>
-</div>
 
 <div class="panel">
-  Qty
-  <input id="qty" type="number" value="1">
-  Limit
-  <input id="limit" type="number">
+Qty
+<input id="qty" type="number" value="1">
+Limit
+<input id="limit" type="number">
 
-  <div class="flex">
-    <button class="buy" onclick="buyMarket()">BUY</button>
-    <button class="sell" onclick="sellMarket()">SELL</button>
-  </div>
-
-  <div class="flex">
-    <button class="blue" onclick="buyLimit()">LIMIT BUY</button>
-    <button class="blue" onclick="sellLimit()">LIMIT SELL</button>
-  </div>
+<button class="buy" onclick="buyMarket()">BUY</button>
+<button class="sell" onclick="sellMarket()">SELL</button>
+<button class="blue" onclick="buyLimit()">LIMIT BUY</button>
+<button class="blue" onclick="sellLimit()">LIMIT SELL</button>
 </div>
 
 <div class="panel">
-  Balance ₹<span id="bal">0</span><br>
-  Position <span id="pos">0</span><br>
-  Avg <span id="avg">0</span><br>
-  PnL <span id="pnl">0</span>
+Balance ₹<span id="bal">0</span><br>
+Position <span id="pos">0</span><br>
+Avg <span id="avg">0</span><br>
+PnL <span id="pnl">0</span>
 </div>
 
-<div class="panel">
-  <h3>Order Book</h3>
-  <div id="orderbook"></div>
 </div>
-</div>
-
 </div>
 
 <script>
-const supabaseUrl = 'https://mpcvctbrinkzdohjrpth.supabase.co';
-const supabaseKey = 'sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseUrl='https://mpcvctbrinkzdohjrpth.supabase.co';
+const supabaseKey='sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
+const supabaseClient=supabase.createClient(supabaseUrl,supabaseKey);
 
-let userId = localStorage.getItem('userId'); // should be set on login
-let price=0, dataSeries=[], pointer=0, candles=[];
-let balance=0, position=0, avgPrice=0;
-let openOrders=[], tradeHistory=[];
-
-// Load user's balance from Supabase
-async function loadFund() {
-  const { data } = await supabaseClient.from('funds').select('*').eq('user_id', userId).single();
-  if(data){ balance = parseFloat(data.balance); updateUI(); }
-}
-loadFund();
-
-// Chart setup
-const ctx=document.getElementById("chart").getContext("2d");
-const chart=new Chart(ctx,{type:"line",data:{labels:[],datasets:[{data:[],borderColor:"#00e5ff",pointRadius:0,fill:false}]},options:{animation:false,plugins:{legend:{display:false}},scales:{x:{display:false}}}});
+let userId=localStorage.getItem('userId');
+let price=0,dataSeries=[],pointer=0,candles=[];
+let balance=0,position=0,avgPrice=0;
+let openOrders=[],tradeHistory=[];
 
 // Tabs
 function showTab(id,e){
-  document.querySelectorAll(".tabContent").forEach(d=>d.style.display="none");
-  document.getElementById(id).style.display="block";
-  document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
-  e.target.classList.add("active");
+document.querySelectorAll(".tabContent").forEach(d=>d.style.display="none");
+document.getElementById(id).style.display="block";
+document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
+e.target.classList.add("active");
 }
 
-// CSV
-function loadCSV(){
-  const file=document.getElementById("csvFile").files[0];
-  if(!file) return alert("Upload CSV");
-  const reader=new FileReader();
-  reader.onload=e=>parseCSV(e.target.result);
-  reader.readAsText(file);
+// Load Fund
+async function loadFund(){
+const {data}=await supabaseClient.from('funds').select('*').eq('user_id',userId).single();
+if(data){balance=parseFloat(data.balance);updateUI();}
 }
-function parseCSV(text){
-  const rows=text.split("\n");
-  dataSeries=[];
-  for(let i=1;i<rows.length;i++){
-    let cols=rows[i].split(",");
-    let close=parseFloat(cols[4]);
-    if(!isNaN(close)) dataSeries.push(close);
+loadFund();
+
+// Chart
+const ctx=document.getElementById("chart").getContext("2d");
+const chart=new Chart(ctx,{
+type:"line",
+data:{labels:[],datasets:[{data:[],borderColor:"#00e5ff",pointRadius:0}]},
+options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false}}}
+});
+
+// Load NSE
+// LOAD FROM NSE TABLE
+async function loadFromDatabase() {
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
+
+  if (!from || !to) {
+    alert("Select both dates");
+    return;
   }
-  pointer=0; loop();
+
+  try {
+    // Fetch all rows from the NSE table
+    const { data, error, status } = await supabaseClient
+      .from("nse")          // make sure table name is exactly "nse"
+      .select("*");
+
+    if (error) {
+      console.error("Supabase error:", error);
+      alert("Error fetching NSE data. Check console.");
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      alert("No data in NSE table");
+      return;
+    }
+
+    // Convert input dates to Date objects
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    // Filter manually in JS
+    const filtered = data.filter(row => {
+      // Ensure the trade_date exists and is parseable
+      if (!row.trade_date) return false;
+      const rowDate = new Date(row.trade_date);
+      return rowDate >= fromDate && rowDate <= toDate;
+    });
+
+    if (filtered.length === 0) {
+      alert("No data found in selected range");
+      return;
+    }
+
+    // Sort by date ascending
+    filtered.sort((a, b) => new Date(a.trade_date) - new Date(b.trade_date));
+
+    // Prepare simulation data
+    dataSeries = filtered.map(row => ({
+      date: row.trade_date,
+      open: row.open,
+      high: row.high,
+      low: row.low,
+      close: row.close
+    }));
+
+    pointer = 0;
+    candles = [];
+    chart.data.labels = [];
+    chart.data.datasets[0].data = [];
+    chart.update();
+
+    loop();
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    alert("Unexpected error fetching NSE data. Check console.");
+  }
 }
 
-// Trading helpers
+// Trading
 function qty(){return +document.getElementById("qty").value;}
 function limit(){return +document.getElementById("limit").value;}
 
-async function logTrade(type,q,p){
-  tradeHistory.push({type,q,p});
-  document.getElementById("trades").innerHTML+=`${type} ${q} @ ${p.toFixed(2)}<br>`;
-  let pnlCalc = (type.includes('SELL')) ? (p-avgPrice)*q : 0;
-  await supabaseClient.from('transactions').insert([{user_id:userId,type:type,qty:q,price:p,pnl:pnlCalc}]);
-  await supabaseClient.from('funds').update({balance}).eq('user_id',userId);
+function logTrade(type,q,p){
+tradeHistory.push(`${type} ${q} @ ${p.toFixed(2)}`);
+document.getElementById("trades").innerHTML=tradeHistory.join("<br>");
+renderPositions();
+renderOrders();
 }
 
-function buyMarket(){ let q=qty(); let cost=q*price; if(balance>=cost){balance-=cost; avgPrice=((avgPrice*position)+(price*q))/(position+q); position+=q; logTrade("BUY",q,price); updateUI();}}
-function sellMarket(){ let q=qty(); if(position>=q){balance+=q*price; position-=q; logTrade("SELL",q,price); if(position===0) avgPrice=0; updateUI();}}
-function buyLimit(){ openOrders.push({type:"buy",qty:qty(),price:limit()}); renderOrders();}
-function sellLimit(){ openOrders.push({type:"sell",qty:qty(),price:limit()}); renderOrders();}
-
-function matchOrders(){
-  for(let i=openOrders.length-1;i>=0;i--){
-    let o=openOrders[i];
-    if(o.type==="buy" && price<=o.price){ balance-=o.qty*o.price; position+=o.qty; avgPrice=o.price; logTrade("LIMIT BUY",o.qty,o.price); openOrders.splice(i,1);}
-    if(o.type==="sell" && price>=o.price){ balance+=o.qty*o.price; position-=o.qty; logTrade("LIMIT SELL",o.qty,o.price); openOrders.splice(i,1); if(position===0) avgPrice=0;}
-  }
+function buyMarket(){
+let q=qty();let cost=q*price;
+if(balance>=cost){
+balance-=cost;
+avgPrice=((avgPrice*position)+(price*q))/(position+q);
+position+=q;
+logTrade("BUY",q,price);
+updateUI();
+}
 }
 
-function renderOrderBook(){ let div=document.getElementById("orderbook"); div.innerHTML=""; for(let i=0;i<8;i++){ let bid=(price-(Math.random()*5)).toFixed(2); let ask=(price+(Math.random()*5)).toFixed(2); div.innerHTML+=`<div class="bid">${bid}</div><div class="ask">${ask}</div>`;}}
-function renderOrders(){ let div=document.getElementById("orders"); div.innerHTML=""; openOrders.forEach(o=>{ div.innerHTML+=`${o.type.toUpperCase()} ${o.qty} @ ${o.price}<br>`;});}
-function renderPositions(){ document.getElementById("positions").innerHTML=`Qty ${position}<br>Avg ${avgPrice.toFixed(2)}`;}
-function updateUI(){ document.getElementById("bal").innerText=balance.toFixed(2); document.getElementById("balTop").innerText=balance.toFixed(2); document.getElementById("pos").innerText=position; document.getElementById("avg").innerText=avgPrice.toFixed(2); let pnl=(position*(price-avgPrice)); document.getElementById("pnl").innerText=pnl.toFixed(2); document.getElementById("pnlTop").innerText=pnl.toFixed(2);}
+function sellMarket(){
+let q=qty();
+if(position>=q){
+balance+=q*price;
+position-=q;
+logTrade("SELL",q,price);
+if(position===0)avgPrice=0;
+updateUI();
+}
+}
+
+function buyLimit(){openOrders.push({type:"BUY",qty:qty(),price:limit()});renderOrders();}
+function sellLimit(){openOrders.push({type:"SELL",qty:qty(),price:limit()});renderOrders();}
+
+function renderOrders(){
+document.getElementById("orders").innerHTML=openOrders.map(o=>`${o.type} ${o.qty} @ ${o.price}`).join("<br>");
+}
+
+function renderPositions(){
+document.getElementById("positions").innerHTML=`Qty: ${position}<br>Avg: ${avgPrice.toFixed(2)}`;
+}
+
+function updateUI(){
+document.getElementById("bal").innerText=balance.toFixed(2);
+document.getElementById("balTop").innerText=balance.toFixed(2);
+document.getElementById("pos").innerText=position;
+document.getElementById("avg").innerText=avgPrice.toFixed(2);
+let pnl=position*(price-avgPrice);
+document.getElementById("pnl").innerText=pnl.toFixed(2);
+document.getElementById("pnlTop").innerText=pnl.toFixed(2);
+}
 
 function loop(){
-  if(pointer>=dataSeries.length) return;
-  price = dataSeries[pointer++];
-  candles.push(price);
-  if(candles.length>300) candles.shift();
-  matchOrders(); renderOrderBook();
-  chart.data.labels=candles.map((_,i)=>i);
-  chart.data.datasets[0].data=candles;
-  chart.options.animation={duration:600,easing:'easeOutQuart'};
-  chart.update(); updateUI(); renderOrders(); renderPositions();
-  setTimeout(loop,1000);
+if(pointer>=dataSeries.length)return;
+let row=dataSeries[pointer++];
+price=row.close;
+candles.push(price);
+if(candles.length>300)candles.shift();
+chart.data.labels=candles.map((_,i)=>i);
+chart.data.datasets[0].data=candles;
+chart.update();
+updateUI();
+setTimeout(loop,800);
 }
 </script>
 </body>
