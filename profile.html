@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profile</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
 body{background:#0b0e11;color:#fff;font-family:"Segoe UI",Arial,sans-serif;padding:20px}
@@ -23,11 +24,12 @@ Balance: ₹<span id="bal">0</span><br>
 <button onclick="withdraw()">Withdraw</button>
 
 <script>
-const supabaseUrl = 'https://mpcvctbrinkzdohjrpth.supabase.co';
-const supabaseKey = 'sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+ const supabaseCLient = window.supabase.createClient(
+    "https://nxwcekpehqmdkelyrzqf.supabase.co",
+    "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
+  );
 
-let userId = localStorage.getItem('userId');
+let userId = sessionStorage.getItem('userId');
 let balance = 0;
 
 async function loadProfile(){

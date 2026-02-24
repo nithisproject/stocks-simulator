@@ -111,11 +111,12 @@ PnL <span id="pnl">0</span>
 </div>
 
 <script>
-const supabaseUrl='https://mpcvctbrinkzdohjrpth.supabase.co';
-const supabaseKey='sb_publishable_toAs6cvoLBqIpDEzVzabuA_KDUtaUvl';
-const supabaseClient=supabase.createClient(supabaseUrl,supabaseKey);
+ const supabaseCLient = window.supabase.createClient(
+    "https://nxwcekpehqmdkelyrzqf.supabase.co",
+    "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
+  );
 
-let userId=localStorage.getItem('userId');
+let userId=sessionStorage.getItem('userId');
 let price=0,dataSeries=[],pointer=0,candles=[];
 let balance=0,position=0,avgPrice=0;
 let openOrders=[],tradeHistory=[];
