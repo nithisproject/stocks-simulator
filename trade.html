@@ -11,7 +11,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif;}
 body{background:#f4f6f9;color:#1f2937;animation:fadePage .6s ease;}
-@keyframes fadePage{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadePage{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
 header{background:#ffffff;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 25px;border-bottom:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
 .logo{color:#2563eb;font-weight:700;font-size:1.2rem;letter-spacing:1px;}
 #layout{display:grid;grid-template-columns:200px 1fr 320px;height:calc(100vh-60px);}
@@ -40,7 +40,7 @@ input:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,23
 .tabBtn:hover{background:#eef2ff;}
 .tabBtn.active{background:#ffffff;color:#2563eb;border-bottom:3px solid #2563eb;}
 .tabContent{flex:1;overflow:auto;padding:12px;font-size:14px;animation:fadeTab .3s ease;}
-@keyframes fadeTab{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeTab{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);} }
 #balTop,#pnlTop{font-weight:600;}
 #pnlTop{color:#2563eb;}
 canvas{background:#ffffff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
@@ -146,7 +146,13 @@ async function saveTransaction(type, quantity, tradePrice, pnlValue = 0) {
   if (!userId) { alert("User not logged in"); return; }
   const { error } = await supabaseClient
     .from("transactions")
-    .insert([{ user_id: userId, type, qty: quantity, price: tradePrice, pnl: pnlValue }]);
+    .insert([{
+      user_id: userId,
+      type,
+      qty: +quantity.toFixed(2),
+      price: +tradePrice.toFixed(2),
+      pnl: +pnlValue.toFixed(2)
+    }]);
   if (error) console.error("Transaction insert error:", error);
 }
 
@@ -155,7 +161,7 @@ async function updateBalanceInDB() {
   if (!userId) return;
   const { error } = await supabaseClient
     .from('funds')
-    .update({ balance: balance })
+    .update({ balance: +balance.toFixed(2) })
     .eq('user_id', userId);
   if (error) console.error("Error updating balance in DB:", error);
 }
@@ -221,7 +227,7 @@ function qty(){return +document.getElementById("qty").value;}
 function limit(){return +document.getElementById("limit").value;}
 
 function logTrade(type,q,p){
-tradeHistory.push(`${type} ${q} @ ${p.toFixed(2)}`);
+tradeHistory.push(`${type} ${q.toFixed(2)} @ ${p.toFixed(2)}`);
 document.getElementById("trades").innerHTML=tradeHistory.join("<br>");
 renderPositions(); renderOrders();
 }
@@ -253,16 +259,16 @@ async function sellMarket() {
   }
 }
 
-function buyLimit(){openOrders.push({type:"BUY",qty:qty(),price:limit()});renderOrders();}
-function sellLimit(){openOrders.push({type:"SELL",qty:qty(),price:limit()});renderOrders();}
+function buyLimit(){openOrders.push({type:"BUY",qty:+qty().toFixed(2),price:+limit().toFixed(2)});renderOrders();}
+function sellLimit(){openOrders.push({type:"SELL",qty:+qty().toFixed(2),price:+limit().toFixed(2)});renderOrders();}
 
-function renderOrders(){document.getElementById("orders").innerHTML=openOrders.map(o=>`${o.type} ${o.qty} @ ${o.price}`).join("<br>");}
-function renderPositions(){document.getElementById("positions").innerHTML=`Qty: ${position}<br>Avg: ${avgPrice.toFixed(2)}`;}
+function renderOrders(){document.getElementById("orders").innerHTML=openOrders.map(o=>`${o.type} ${o.qty.toFixed(2)} @ ${o.price.toFixed(2)}`).join("<br>");}
+function renderPositions(){document.getElementById("positions").innerHTML=`Qty: ${position.toFixed(2)}<br>Avg: ${avgPrice.toFixed(2)}`;}
 
 function updateUI(){
 document.getElementById("bal").innerText=balance.toFixed(2);
 document.getElementById("balTop").innerText=balance.toFixed(2);
-document.getElementById("pos").innerText=position;
+document.getElementById("pos").innerText=position.toFixed(2);
 document.getElementById("avg").innerText=avgPrice.toFixed(2);
 let pnl=position*(price-avgPrice);
 document.getElementById("pnl").innerText=pnl.toFixed(2);
@@ -276,7 +282,7 @@ price=row.close;
 candles.push(price);
 if(candles.length>300)candles.shift();
 chart.data.labels=candles.map((_,i)=>i);
-chart.data.datasets[0].data=candles;
+chart.data.datasets[0].data=candles.map(p=>+p.toFixed(2));
 chart.update();
 updateUI();
 setTimeout(loop,1500);

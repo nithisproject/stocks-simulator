@@ -278,9 +278,9 @@ async function loadHistory(){
       <tr>
         <td><input type="checkbox" class="rowCheck" value="${tr.id}"></td>
         <td>${tr.type}</td>
-        <td>${tr.qty ?? '-'}</td>
-        <td>${tr.price ?? '-'}</td>
-        <td class="${pnlClass}">${tr.pnl ?? 0}</td>
+        <td>${tr.qty !== null ? (+tr.qty).toFixed(2) : '-'}</td>
+        <td>${tr.price !== null ? (+tr.price).toFixed(2) : '-'}</td>
+        <td class="${pnlClass}">${tr.pnl !== null ? (+tr.pnl).toFixed(2) : '0.00'}</td>
         <td>${new Date(tr.created_at).toLocaleString()}</td>
       </tr>
     `;
@@ -339,9 +339,9 @@ function exportPDF() {
   transactionData.forEach(tr=>{
     tableRows.push([
       tr.type,
-      tr.qty ?? '-',
-      tr.price ?? '-',
-      tr.pnl ?? 0,
+      tr.qty !== null ? (+tr.qty).toFixed(2) : '-',
+      tr.price !== null ? (+tr.price).toFixed(2) : '-',
+      tr.pnl !== null ? (+tr.pnl).toFixed(2) : '0.00',
       new Date(tr.created_at).toLocaleString()
     ]);
   });
