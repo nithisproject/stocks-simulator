@@ -20,13 +20,87 @@ font-family:"Segoe UI",Arial,sans-serif;
 body{
 background:#f4f6f9;
 color:#1f2937;
-padding:30px;
-animation:fadePage .6s ease;
 }
 
-@keyframes fadePage{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
+/* HEADER */
+header{
+background:#ffffff;
+height:60px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 25px;
+border-bottom:1px solid #e5e7eb;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.logo{
+color:#2563eb;
+font-weight:700;
+font-size:1.2rem;
+}
+
+.header-nav a{
+text-decoration:none;
+color:#374151;
+font-weight:500;
+margin-right:15px;
+transition:.2s;
+}
+
+.header-nav a:hover{
+color:#2563eb;
+}
+
+.logout-btn{
+padding:6px 12px;
+background:#dc2626;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+}
+
+.logout-btn:hover{
+background:#b91c1c;
+}
+
+/* LAYOUT */
+#layout{
+display:grid;
+grid-template-columns:220px 1fr;
+height:calc(100vh - 60px);
+}
+
+/* SIDEBAR */
+#sidebar{
+background:#ffffff;
+border-right:1px solid #e5e7eb;
+padding:15px;
+}
+
+.navBtn{
+display:block;
+padding:10px 12px;
+margin-bottom:10px;
+background:#f9fafb;
+border-radius:8px;
+text-decoration:none;
+color:#374151;
+transition:.25s;
+font-weight:500;
+}
+
+.navBtn:hover{
+background:#e0e7ff;
+color:#1d4ed8;
+}
+
+/* MAIN CONTENT */
+.main{
+padding:40px;
+overflow:auto;
 }
 
 h2{
@@ -47,7 +121,7 @@ border-radius:8px;
 cursor:pointer;
 font-weight:600;
 margin-right:10px;
-transition:all .2s ease;
+transition:.2s;
 }
 
 button:hover{
@@ -88,10 +162,6 @@ color:#2563eb;
 font-weight:600;
 }
 
-tr{
-transition:background .2s ease;
-}
-
 tr:hover{
 background:#f3f4f6;
 }
@@ -113,12 +183,33 @@ font-weight:600;
 }
 
 @media(max-width:768px){
-body{padding:15px;}
+.main{padding:15px;}
 table{font-size:13px;}
 }
 </style>
 </head>
+
 <body>
+
+<header>
+<div style="display:flex;align-items:center;">
+<div class="logo">TRADING SIMULATOR</div>
+</div>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div id="layout">
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+<a href="trade.html" class="navBtn">📈 Trade</a>
+<a href="profile.html" class="navBtn">👤 Profile</a>
+<a href="history.html" class="navBtn">📜 History</a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
 
 <h2>Trading History</h2>
 
@@ -141,6 +232,9 @@ table{font-size:13px;}
 <tbody id="historyBody"></tbody>
 </table>
 
+</div>
+</div>
+
 <script>
 const supabaseClient = supabase.createClient(
   "https://nxwcekpehqmdkelyrzqf.supabase.co",
@@ -152,10 +246,15 @@ let transactionData = [];
 
 if (!userId) {
   alert("User not logged in");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
 
-// ================= LOAD HISTORY =================
+function logout(){
+sessionStorage.removeItem("userId");
+window.location.href="index.html";
+}
+
+// LOAD HISTORY
 async function loadHistory(){
   const { data, error } = await supabaseClient
     .from('transactions')
@@ -169,7 +268,6 @@ async function loadHistory(){
   }
 
   transactionData = data || [];
-
   const tbody = document.getElementById('historyBody');
   tbody.innerHTML = '';
 
@@ -188,20 +286,18 @@ async function loadHistory(){
     `;
   });
 }
-
 loadHistory();
 
-// ================= SELECT ALL =================
+// SELECT ALL
 function toggleSelectAll(source){
   document.querySelectorAll(".rowCheck").forEach(cb=>{
     cb.checked = source.checked;
   });
 }
 
-// ================= DELETE SELECTED =================
+// DELETE
 async function deleteSelected(){
   const checked = document.querySelectorAll(".rowCheck:checked");
-
   if(checked.length === 0){
     alert("No rows selected");
     return;
@@ -223,7 +319,7 @@ async function deleteSelected(){
   loadHistory();
 }
 
-// ================= EXPORT PDF =================
+// EXPORT PDF
 function exportPDF() {
   if (transactionData.length === 0) {
     alert("No data to export");
@@ -231,20 +327,16 @@ function exportPDF() {
   }
 
   const { jsPDF } = window.jspdf;
-
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a4"
-  });
+  const doc = new jsPDF({ orientation:"landscape", unit:"mm", format:"a4" });
 
   doc.setFontSize(14);
-  doc.text("Trading History Report", 14, 15);
+  doc.text("Trading History Report",14,15);
+  doc.text("National Stock Exchange (NSE) & Bitcoin",14,22);
 
-  const tableColumn = ["Type", "Qty", "Price", "PnL", "Date"];
+  const tableColumn = ["Type","Qty","Price","PnL","Date"];
   const tableRows = [];
 
-  transactionData.forEach(tr => {
+  transactionData.forEach(tr=>{
     tableRows.push([
       tr.type,
       tr.qty ?? '-',
@@ -255,11 +347,11 @@ function exportPDF() {
   });
 
   doc.autoTable({
-    head: [tableColumn],
-    body: tableRows,
-    startY: 20,
-    theme: "grid",
-    styles: { halign: 'center' }
+    head:[tableColumn],
+    body:tableRows,
+    startY:30,
+    theme:"grid",
+    styles:{ halign:'center' }
   });
 
   doc.save("Trading_History.pdf");

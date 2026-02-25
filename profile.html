@@ -18,29 +18,95 @@ font-family:"Segoe UI",Arial,sans-serif;
 body{
 background:#f4f6f9;
 color:#1f2937;
-animation:fadePage .6s ease;
 }
 
-@keyframes fadePage{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
+/* HEADER */
+header{
+background:#ffffff;
+height:60px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 25px;
+border-bottom:1px solid #e5e7eb;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
-.container{
-max-width:900px;
-margin:50px auto;
-padding:20px;
+.logo{
+color:#2563eb;
+font-weight:700;
+font-size:1.2rem;
 }
 
-/* Title */
+.header-nav a{
+text-decoration:none;
+color:#374151;
+font-weight:500;
+margin-right:15px;
+transition:.2s;
+}
+
+.header-nav a:hover{
+color:#2563eb;
+}
+
+.logout-btn{
+padding:6px 12px;
+background:#dc2626;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+}
+
+.logout-btn:hover{
+background:#b91c1c;
+}
+
+/* LAYOUT */
+#layout{
+display:grid;
+grid-template-columns:220px 1fr;
+height:calc(100vh - 60px);
+}
+
+/* SIDEBAR */
+#sidebar{
+background:#ffffff;
+border-right:1px solid #e5e7eb;
+padding:15px;
+}
+
+.navBtn{
+display:block;
+padding:10px 12px;
+margin-bottom:10px;
+background:#f9fafb;
+border-radius:8px;
+text-decoration:none;
+color:#374151;
+transition:.25s;
+font-weight:500;
+}
+
+.navBtn:hover{
+background:#e0e7ff;
+color:#1d4ed8;
+}
+
+/* MAIN CONTENT */
+.main{
+padding:40px;
+overflow:auto;
+}
+
 h2{
 color:#2563eb;
 margin-bottom:25px;
 font-weight:700;
-letter-spacing:.5px;
 }
 
-/* Cards */
 .card{
 background:#ffffff;
 border:1px solid #e5e7eb;
@@ -48,7 +114,7 @@ border-radius:12px;
 padding:25px;
 margin-bottom:25px;
 box-shadow:0 6px 18px rgba(0,0,0,0.05);
-transition:all .25s ease;
+transition:.25s;
 }
 
 .card:hover{
@@ -56,7 +122,6 @@ transform:translateY(-4px);
 box-shadow:0 12px 28px rgba(0,0,0,0.08);
 }
 
-/* Balance Highlight */
 .balanceBox{
 font-size:32px;
 font-weight:700;
@@ -64,7 +129,6 @@ color:#2563eb;
 margin-top:10px;
 }
 
-/* Labels */
 label{
 display:block;
 margin-top:14px;
@@ -73,7 +137,6 @@ color:#6b7280;
 font-weight:500;
 }
 
-/* Inputs */
 input{
 width:100%;
 padding:12px;
@@ -82,7 +145,7 @@ border:1px solid #d1d5db;
 background:#ffffff;
 color:#111827;
 outline:none;
-transition:all .25s ease;
+transition:.25s;
 }
 
 input:focus{
@@ -90,7 +153,6 @@ border-color:#2563eb;
 box-shadow:0 0 0 3px rgba(37,99,235,0.2);
 }
 
-/* Buttons */
 button{
 padding:12px 20px;
 border:none;
@@ -98,7 +160,7 @@ border-radius:10px;
 cursor:pointer;
 font-weight:600;
 margin-top:15px;
-transition:all .2s ease;
+transition:.2s;
 }
 
 button:hover{
@@ -106,38 +168,21 @@ transform:translateY(-2px);
 box-shadow:0 6px 16px rgba(0,0,0,0.15);
 }
 
-button:active{
-transform:scale(.97);
-}
-
-/* Primary */
 .primary{
 background:#2563eb;
 color:white;
 }
-.primary:hover{
-background:#1d4ed8;
-}
 
-/* Deposit */
 .depositBtn{
 background:#16a34a;
 color:white;
 }
-.depositBtn:hover{
-background:#15803d;
-}
 
-/* Withdraw */
 .withdrawBtn{
 background:#dc2626;
 color:white;
 }
-.withdrawBtn:hover{
-background:#b91c1c;
-}
 
-/* Row */
 .row{
 display:flex;
 gap:15px;
@@ -148,31 +193,40 @@ margin-top:15px;
 flex:1;
 }
 
-/* Messages */
 .success{
 color:#16a34a;
 margin-top:12px;
 font-weight:500;
-animation:fadeMsg .4s ease;
 }
 
 .error{
 color:#dc2626;
 margin-top:12px;
 font-weight:500;
-animation:fadeMsg .4s ease;
-}
-
-@keyframes fadeMsg{
-from{opacity:0;transform:translateY(5px);}
-to{opacity:1;transform:translateY(0);}
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<header>
+<div style="display:flex;align-items:center;">
+<div class="logo">TRADING SIMULATOR</div>
+
+</div>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div id="layout">
+
+<div id="sidebar">
+<a href="trade.html" class="navBtn">📈 Trade</a>
+<a href="profile.html" class="navBtn">👤 Profile</a>
+<a href="history.html" class="navBtn">📜 History</a>
+</div>
+
+<div class="main">
 
 <h2>Profile Dashboard</h2>
 
@@ -213,11 +267,12 @@ to{opacity:1;transform:translateY(0);}
 </div>
 
 </div>
+</div>
 
 <script>
 const supabaseClient = window.supabase.createClient(
   "https://nxwcekpehqmdkelyrzqf.supabase.co",
-    "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
+  "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
 );
 
 let userId = sessionStorage.getItem('userId');
@@ -225,10 +280,14 @@ let balance = 0;
 
 if(!userId){
   alert("User not logged in");
-  window.location.href="login.html";
+  window.location.href="index.html";
 }
 
-// ================= LOAD PROFILE =================
+function logout(){
+sessionStorage.removeItem("userId");
+window.location.href="index.html";
+}
+
 async function loadProfile(){
   const { data: user } = await supabaseClient
     .from('users')
@@ -243,49 +302,34 @@ async function loadProfile(){
     .single();
 
   if(user){
-    document.getElementById('name').value = user.name || '';
-    document.getElementById('email').value = user.email || '';
+    name.value = user.name || '';
+    email.value = user.email || '';
   }
 
   if(fund){
     balance = parseFloat(fund.balance) || 0;
-    document.getElementById('bal').innerText = balance.toFixed(2);
+    bal.innerText = balance.toFixed(2);
   }
 }
 loadProfile();
 
-// ================= UPDATE PROFILE =================
 async function updateProfile(){
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
   const { error } = await supabaseClient
     .from('users')
-    .update({ name, email, password })
+    .update({
+      name: name.value,
+      email: email.value,
+      password: password.value
+    })
     .eq('id', userId);
 
-  const msg = document.getElementById('profileMsg');
-
-  if(error){
-    msg.className="error";
-    msg.innerText="Update failed!";
-  } else {
-    msg.className="success";
-    msg.innerText="Profile updated successfully!";
-  }
+  profileMsg.className = error ? "error" : "success";
+  profileMsg.innerText = error ? "Update failed!" : "Profile updated successfully!";
 }
 
-// ================= DEPOSIT =================
 async function deposit(){
-  const amt = parseFloat(document.getElementById('amount').value);
-  const msg = document.getElementById('walletMsg');
-
-  if(!amt || amt<=0){
-    msg.className="error";
-    msg.innerText="Invalid amount";
-    return;
-  }
+  const amt = parseFloat(amount.value);
+  if(!amt || amt<=0) return walletMsg.innerText="Invalid amount";
 
   balance += amt;
 
@@ -293,25 +337,14 @@ async function deposit(){
     .update({ balance })
     .eq('user_id', userId);
 
-  await supabaseClient.from('transactions')
-    .insert([{ user_id:userId, type:'DEPOSIT', qty:null, price:null, pnl:amt }]);
-
-  document.getElementById('bal').innerText = balance.toFixed(2);
-
-  msg.className="success";
-  msg.innerText="Deposit successful!";
+  bal.innerText = balance.toFixed(2);
+  walletMsg.className="success";
+  walletMsg.innerText="Deposit successful!";
 }
 
-// ================= WITHDRAW =================
 async function withdraw(){
-  const amt = parseFloat(document.getElementById('amount').value);
-  const msg = document.getElementById('walletMsg');
-
-  if(!amt || amt<=0 || amt>balance){
-    msg.className="error";
-    msg.innerText="Invalid amount";
-    return;
-  }
+  const amt = parseFloat(amount.value);
+  if(!amt || amt<=0 || amt>balance) return walletMsg.innerText="Invalid amount";
 
   balance -= amt;
 
@@ -319,13 +352,9 @@ async function withdraw(){
     .update({ balance })
     .eq('user_id', userId);
 
-  await supabaseClient.from('transactions')
-    .insert([{ user_id:userId, type:'WITHDRAW', qty:null, price:null, pnl:-amt }]);
-
-  document.getElementById('bal').innerText = balance.toFixed(2);
-
-  msg.className="success";
-  msg.innerText="Withdraw successful!";
+  bal.innerText = balance.toFixed(2);
+  walletMsg.className="success";
+  walletMsg.innerText="Withdraw successful!";
 }
 </script>
 

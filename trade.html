@@ -9,238 +9,43 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:"Segoe UI",Arial,sans-serif;
-}
-
-body{
-background:#f4f6f9;
-color:#1f2937;
-animation:fadePage .6s ease;
-}
-
-@keyframes fadePage{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-/* HEADER */
-header{
-background:#ffffff;
-height:60px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 25px;
-border-bottom:1px solid #e5e7eb;
-box-shadow:0 2px 8px rgba(0,0,0,0.05);
-}
-
-.logo{
-color:#2563eb;
-font-weight:700;
-font-size:1.2rem;
-letter-spacing:1px;
-}
-
-/* LAYOUT */
-#layout{
-display:grid;
-grid-template-columns:200px 1fr 320px;
-height:calc(100vh-60px);
-}
-
-/* SIDEBAR */
-#sidebar{
-background:#ffffff;
-border-right:1px solid #e5e7eb;
-padding:18px;
-animation:slideLeft .6s ease;
-}
-
-@keyframes slideLeft{
-from{transform:translateX(-40px);opacity:0;}
-to{transform:translateX(0);opacity:1;}
-}
-
-/* RIGHT PANEL */
-#right{
-background:#ffffff;
-border-left:1px solid #e5e7eb;
-padding:18px;
-animation:slideRight .6s ease;
-}
-
-@keyframes slideRight{
-from{transform:translateX(40px);opacity:0;}
-to{transform:translateX(0);opacity:1;}
-}
-
-/* NAV BUTTONS */
-.navBtn{
-display:block;
-padding:10px 12px;
-margin-bottom:10px;
-background:#f9fafb;
-border-radius:8px;
-text-decoration:none;
-color:#374151;
-transition:all .25s ease;
-font-weight:500;
-}
-
-.navBtn:hover{
-background:#e0e7ff;
-color:#1d4ed8;
-transform:translateX(4px);
-}
-
-/* PANELS */
-.panel{
-background:#ffffff;
-border:1px solid #e5e7eb;
-border-radius:10px;
-padding:15px;
-margin-bottom:15px;
-box-shadow:0 4px 12px rgba(0,0,0,0.04);
-transition:all .25s ease;
-}
-
-.panel:hover{
-transform:translateY(-3px);
-box-shadow:0 8px 20px rgba(0,0,0,0.08);
-}
-
-/* BUTTONS */
-button{
-padding:9px;
-margin:5px 0;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
-transition:all .2s ease;
-}
-
-button:hover{
-transform:translateY(-2px);
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
-
-button:active{
-transform:scale(.97);
-}
-
-.buy{
-background:#16a34a;
-color:white;
-}
-.buy:hover{
-background:#15803d;
-}
-
-.sell{
-background:#dc2626;
-color:white;
-}
-.sell:hover{
-background:#b91c1c;
-}
-
-.blue{
-background:#2563eb;
-color:white;
-}
-.blue:hover{
-background:#1d4ed8;
-}
-
-/* INPUTS */
-input{
-width:75%;
-padding:8px;
-margin:6px 0;
-background:#ffffff;
-border:1px solid #d1d5db;
-color:#111827;
-border-radius:8px;
-transition:all .2s ease;
-}
-
-input:focus{
-outline:none;
-border-color:#2563eb;
-box-shadow:0 0 0 3px rgba(37,99,235,0.2);
-}
-
-/* BOTTOM PANEL */
-#bottomPanel{
-height:200px;
-background:#ffffff;
-border-top:1px solid #e5e7eb;
-display:flex;
-flex-direction:column;
-}
-
-/* TABS */
-.tabs{
-display:flex;
-border-bottom:1px solid #e5e7eb;
-}
-
-.tabBtn{
-flex:1;
-padding:10px;
-background:#f9fafb;
-border:none;
-color:#6b7280;
-cursor:pointer;
-font-weight:500;
-transition:all .25s ease;
-}
-
-.tabBtn:hover{
-background:#eef2ff;
-}
-
-.tabBtn.active{
-background:#ffffff;
-color:#2563eb;
-border-bottom:3px solid #2563eb;
-}
-
-/* TAB CONTENT */
-.tabContent{
-flex:1;
-overflow:auto;
-padding:12px;
-font-size:14px;
-animation:fadeTab .3s ease;
-}
-
-@keyframes fadeTab{
-from{opacity:0;transform:translateY(5px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-/* BALANCE & PNL */
-#balTop,#pnlTop{
-font-weight:600;
-}
-
-#pnlTop{
-color:#2563eb;
-}
-
-/* Chart */
-canvas{
-background:#ffffff;
-border-radius:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.05);
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif;}
+body{background:#f4f6f9;color:#1f2937;animation:fadePage .6s ease;}
+@keyframes fadePage{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+header{background:#ffffff;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 25px;border-bottom:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.logo{color:#2563eb;font-weight:700;font-size:1.2rem;letter-spacing:1px;}
+#layout{display:grid;grid-template-columns:200px 1fr 320px;height:calc(100vh-60px);}
+#sidebar{background:#ffffff;border-right:1px solid #e5e7eb;padding:15px;animation:slideLeft .6s ease;}
+@keyframes slideLeft{from{transform:translateX(-40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+#right{background:#ffffff;border-left:1px solid #e5e7eb;padding:18px;animation:slideRight .6s ease;}
+@keyframes slideRight{from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.navBtn{display:block;padding:10px 12px;margin-bottom:10px;background:#f9fafb;border-radius:8px;text-decoration:none;color:#374151;transition:all .25s ease;font-weight:500;}
+.navBtn:hover{background:#e0e7ff;color:#1d4ed8;transform:translateX(4px);}
+.panel{background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;padding:15px;margin-bottom:15px;box-shadow:0 4px 12px rgba(0,0,0,0.04);transition:all .25s ease;}
+.panel:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.08);}
+button{padding:9px;margin:5px 0;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all .2s ease;}
+button:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+button:active{transform:scale(.97);}
+.buy{background:#16a34a;color:white;}
+.buy:hover{background:#15803d;}
+.sell{background:#dc2626;color:white;}
+.sell:hover{background:#b91c1c;}
+.blue{background:#2563eb;color:white;}
+.blue:hover{background:#1d4ed8;}
+input{width:85%;padding:8px;margin:6px 0;background:#ffffff;border:1px solid #d1d5db;color:#111827;border-radius:8px;transition:all .2s ease;}
+input:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.2);}
+#bottomPanel{height:200px;background:#ffffff;border-top:1px solid #e5e7eb;display:flex;flex-direction:column;}
+.tabs{display:flex;border-bottom:1px solid #e5e7eb;}
+.tabBtn{flex:1;padding:10px;background:#f9fafb;border:none;color:#6b7280;cursor:pointer;font-weight:500;transition:all .25s ease;}
+.tabBtn:hover{background:#eef2ff;}
+.tabBtn.active{background:#ffffff;color:#2563eb;border-bottom:3px solid #2563eb;}
+.tabContent{flex:1;overflow:auto;padding:12px;font-size:14px;animation:fadeTab .3s ease;}
+@keyframes fadeTab{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+#balTop,#pnlTop{font-weight:600;}
+#pnlTop{color:#2563eb;}
+canvas{background:#ffffff;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
+.logoutBtn { padding: 5px 10px; background: #dc2626; color: white; border-radius: 5px; font-weight: 600; cursor: pointer; transition: 0.3s;}
+.logoutBtn:hover { background: #b91c1c;}
 </style>
 </head>
 
@@ -248,27 +53,38 @@ box-shadow:0 4px 12px rgba(0,0,0,0.05);
 
 <header>
 <div class="logo">TRADING SIMULATOR</div>
-<div>Balance ₹<span id="balTop">0</span> | PnL <span id="pnlTop">0</span></div>
+<div>Balance ₹<span id="balTop">0</span> | PnL <span id="pnlTop">0</span>
+<button class="logoutBtn" onclick="logout()">Logout</button></div>
+<script>
+function logout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+</script>
 </header>
 
 <div id="layout">
 
 <!-- SIDEBAR -->
 <div id="sidebar">
-
-<a href="trade.html" class="navBtn">Trade</a>
-<a href="profile.html" class="navBtn">Profile</a>
-<a href="history.html" class="navBtn">History</a>
+<a href="trade.html" class="navBtn">📈 Trade</a>
+<a href="profile.html" class="navBtn">👤 Profile</a>
+<a href="history.html" class="navBtn">📜 History</a>
 
 <div class="panel">
 <h3>NSE Data</h3>
-From
-<input type="date" id="fromDate">
-To
+From<br>
+<input type="date" id="fromDate"><br>
+To<br>
 <input type="date" id="toDate">
 <button class="blue" onclick="loadFromDatabase()">Load Data</button>
 </div>
 
+<div class="panel">
+<h3>Bitcoin Data</h3>
+From<br>
+<input type="date" id="btcFromDate"><br>
+To<br>
+<input type="date" id="btcToDate">
+<button class="blue" onclick="loadBitcoinFromDatabase()">Load Bitcoin</button>
+</div>
 </div>
 
 <!-- CENTER -->
@@ -287,13 +103,11 @@ To
 <div id="trades" class="tabContent"></div>
 <div id="positions" class="tabContent" style="display:none"></div>
 <div id="orders" class="tabContent" style="display:none"></div>
-
 </div>
 </div>
 
 <!-- RIGHT PANEL -->
 <div id="right">
-
 <div class="panel">
 Qty
 <input id="qty" type="number" value="1">
@@ -312,44 +126,40 @@ Position <span id="pos">0</span><br>
 Avg <span id="avg">0</span><br>
 PnL <span id="pnl">0</span>
 </div>
-
 </div>
+
 </div>
 
 <script>
- const supabaseClient = window.supabase.createClient(
-    "https://nxwcekpehqmdkelyrzqf.supabase.co",
-    "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
-  );
+const supabaseClient = window.supabase.createClient(
+  "https://nxwcekpehqmdkelyrzqf.supabase.co",
+  "sb_publishable_bjF_z3_ZDaKRTByS4jWfyA_6U12XYtu"
+);
 
 let userId=sessionStorage.getItem('userId');
 let price=0,dataSeries=[],pointer=0,candles=[];
 let balance=0,position=0,avgPrice=0;
 let openOrders=[],tradeHistory=[];
-async function saveTransaction(type, quantity, tradePrice, pnlValue = 0) {
-  if (!userId) {
-    alert("User not logged in");
-    return;
-  }
 
+// Save transaction to Supabase
+async function saveTransaction(type, quantity, tradePrice, pnlValue = 0) {
+  if (!userId) { alert("User not logged in"); return; }
   const { error } = await supabaseClient
     .from("transactions")
-    .insert([
-      {
-        user_id: userId,
-        type: type,
-        qty: quantity,
-        price: tradePrice,
-        pnl: pnlValue
-      }
-    ]);
-
-  if (error) {
-    console.error("Transaction insert error:", error);
-  } else {
-    console.log("Transaction saved");
-  }
+    .insert([{ user_id: userId, type, qty: quantity, price: tradePrice, pnl: pnlValue }]);
+  if (error) console.error("Transaction insert error:", error);
 }
+
+// Update balance in Supabase
+async function updateBalanceInDB() {
+  if (!userId) return;
+  const { error } = await supabaseClient
+    .from('funds')
+    .update({ balance: balance })
+    .eq('user_id', userId);
+  if (error) console.error("Error updating balance in DB:", error);
+}
+
 // Tabs
 function showTab(id,e){
 document.querySelectorAll(".tabContent").forEach(d=>d.style.display="none");
@@ -358,7 +168,7 @@ document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
 e.target.classList.add("active");
 }
 
-// Load Fund
+// Load user funds
 async function loadFund(){
 const {data}=await supabaseClient.from('funds').select('*').eq('user_id',userId).single();
 if(data){balance=parseFloat(data.balance);updateUI();}
@@ -367,139 +177,87 @@ loadFund();
 
 // Chart
 const ctx=document.getElementById("chart").getContext("2d");
-const chart=new Chart(ctx,{
-type:"line",
-data:{labels:[],datasets:[{data:[],borderColor:"#00e5ff",pointRadius:0}]},
-options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false}}}
-});
+const chart=new Chart(ctx,{type:"line",data:{labels:[],datasets:[{data:[],borderColor:"#00e5ff",pointRadius:0}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false}}}});
 
-// Load NSE
-// LOAD FROM NSE TABLE
+// ================= LOAD NSE DATA =================
 async function loadFromDatabase() {
   const from = document.getElementById("fromDate").value;
   const to = document.getElementById("toDate").value;
-
-  if (!from || !to) {
-    alert("Select both dates");
-    return;
-  }
+  if (!from || !to) { alert("Select both dates"); return; }
 
   try {
-    // Fetch all rows from the NSE table
-    const { data, error, status } = await supabaseClient
-      .from("nse")          // make sure table name is exactly "nse"
-      .select("*");
-
-    if (error) {
-      console.error("Supabase error:", error);
-      alert("Error fetching NSE data. Check console.");
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      alert("No data in NSE table");
-      return;
-    }
-
-    // Convert input dates to Date objects
-    const fromDate = new Date(from);
-    const toDate = new Date(to);
-
-    // Filter manually in JS
-    const filtered = data.filter(row => {
-      // Ensure the trade_date exists and is parseable
-      if (!row.trade_date) return false;
-      const rowDate = new Date(row.trade_date);
-      return rowDate >= fromDate && rowDate <= toDate;
-    });
-
-    if (filtered.length === 0) {
-      alert("No data found in selected range");
-      return;
-    }
-
-    // Sort by date ascending
-    filtered.sort((a, b) => new Date(a.trade_date) - new Date(b.trade_date));
-
-    // Prepare simulation data
-    dataSeries = filtered.map(row => ({
-      date: row.trade_date,
-      open: row.open,
-      high: row.high,
-      low: row.low,
-      close: row.close
-    }));
-
-    pointer = 0;
-    candles = [];
-    chart.data.labels = [];
-    chart.data.datasets[0].data = [];
-    chart.update();
-
-    loop();
-  } catch (err) {
-    console.error("Unexpected error:", err);
-    alert("Unexpected error fetching NSE data. Check console.");
-  }
+    const { data, error } = await supabaseClient.from("nse").select("*");
+    if (error) { alert("Error fetching NSE data"); return; }
+    const fromDate = new Date(from), toDate = new Date(to);
+    const filtered = data.filter(row => row.trade_date && new Date(row.trade_date) >= fromDate && new Date(row.trade_date) <= toDate);
+    if (filtered.length===0){ alert("No NSE data found"); return; }
+    filtered.sort((a,b)=>new Date(a.trade_date)-new Date(b.trade_date));
+    dataSeries = filtered.map(row => ({ date: row.trade_date, open: row.open, high: row.high, low: row.low, close: row.close }));
+    pointer=0;candles=[];chart.data.labels=[];chart.data.datasets[0].data=[];chart.update(); loop();
+  } catch(err){console.error(err); alert("Unexpected NSE error");}
 }
 
-// Trading
+// ================= LOAD BITCOIN DATA =================
+async function loadBitcoinFromDatabase() {
+  const from = document.getElementById("btcFromDate").value;
+  const to = document.getElementById("btcToDate").value;
+  if (!from || !to) { alert("Select both dates"); return; }
+
+  try {
+    const { data, error } = await supabaseClient.from("btc_market_data").select("*");
+    if (error) { alert("Error fetching BTC data"); console.error(error); return; }
+    if (!data || data.length===0){ alert("No BTC data found"); return; }
+    const fromDate = new Date(from), toDate = new Date(to);
+    const filtered = data.filter(row => row.date && new Date(row.date) >= fromDate && new Date(row.date) <= toDate);
+    if (filtered.length===0){ alert("No BTC data in range"); return; }
+    filtered.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    dataSeries = filtered.map(row => ({ date: row.date, open: row.btc_market_price, high: row.btc_market_price, low: row.btc_market_price, close: row.btc_market_price }));
+    pointer=0;candles=[];chart.data.labels=[];chart.data.datasets[0].data=[];chart.update(); loop();
+  } catch(err){console.error(err); alert("Unexpected BTC error");}
+}
+
+// Trading logic
 function qty(){return +document.getElementById("qty").value;}
 function limit(){return +document.getElementById("limit").value;}
 
 function logTrade(type,q,p){
 tradeHistory.push(`${type} ${q} @ ${p.toFixed(2)}`);
 document.getElementById("trades").innerHTML=tradeHistory.join("<br>");
-renderPositions();
-renderOrders();
+renderPositions(); renderOrders();
 }
 
 async function buyMarket() {
-  let q = qty();
-  let cost = q * price;
-
+  let q = qty(), cost = q * price;
   if (balance >= cost) {
     balance -= cost;
-
     avgPrice = ((avgPrice * position) + (price * q)) / (position + q);
     position += q;
-
     logTrade("BUY", q, price);
     updateUI();
-
     await saveTransaction("BUY", q, price, 0);
+    await updateBalanceInDB();
   }
 }
 
 async function sellMarket() {
   let q = qty();
-
   if (position >= q) {
     let realizedPnl = (price - avgPrice) * q;
-
     balance += q * price;
     position -= q;
-
+    if (position===0) avgPrice=0;
     logTrade("SELL", q, price);
-
-    if (position === 0) avgPrice = 0;
-
     updateUI();
-
     await saveTransaction("SELL", q, price, realizedPnl);
+    await updateBalanceInDB();
   }
 }
 
 function buyLimit(){openOrders.push({type:"BUY",qty:qty(),price:limit()});renderOrders();}
 function sellLimit(){openOrders.push({type:"SELL",qty:qty(),price:limit()});renderOrders();}
 
-function renderOrders(){
-document.getElementById("orders").innerHTML=openOrders.map(o=>`${o.type} ${o.qty} @ ${o.price}`).join("<br>");
-}
-
-function renderPositions(){
-document.getElementById("positions").innerHTML=`Qty: ${position}<br>Avg: ${avgPrice.toFixed(2)}`;
-}
+function renderOrders(){document.getElementById("orders").innerHTML=openOrders.map(o=>`${o.type} ${o.qty} @ ${o.price}`).join("<br>");}
+function renderPositions(){document.getElementById("positions").innerHTML=`Qty: ${position}<br>Avg: ${avgPrice.toFixed(2)}`;}
 
 function updateUI(){
 document.getElementById("bal").innerText=balance.toFixed(2);
@@ -512,7 +270,7 @@ document.getElementById("pnlTop").innerText=pnl.toFixed(2);
 }
 
 function loop(){
-if(pointer>=dataSeries.length)return;
+if(pointer>=dataSeries.length) return;
 let row=dataSeries[pointer++];
 price=row.close;
 candles.push(price);
@@ -521,7 +279,7 @@ chart.data.labels=candles.map((_,i)=>i);
 chart.data.datasets[0].data=candles;
 chart.update();
 updateUI();
-setTimeout(loop,1800);
+setTimeout(loop,1500);
 }
 </script>
 </body>
