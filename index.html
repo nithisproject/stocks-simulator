@@ -2,51 +2,167 @@
 <html>
 <head>
   <title>Auth System</title>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
+      overflow: hidden;
     }
+
     .container {
-      background: white;
-      padding: 30px;
-      width: 350px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      padding: 40px;
+      width: 380px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      color: white;
+      animation: fadeIn 0.8s ease;
+      transition: all 0.4s ease;
     }
-    h2 { text-align: center; }
-    input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; }
-    button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #45a049; }
-    .toggle { text-align: center; margin-top: 10px; cursor: pointer; color: blue; }
-    .hidden { display: none; }
-    .message { text-align: center; margin-top: 10px; color: red; }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      position: relative;
+      margin: 12px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      transform: scale(1.03);
+      box-shadow: 0 0 10px rgba(255,255,255,0.6);
+    }
+
+    .eye-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #555;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: #4CAF50;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #43a047;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .toggle {
+      text-align: center;
+      margin-top: 15px;
+      cursor: pointer;
+      color: #ffd700;
+      transition: 0.3s;
+    }
+
+    .toggle:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade {
+      animation: fadeIn 0.6s ease;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
   <!-- REGISTER -->
-  <div id="registerBox">
-    <h2>Register</h2>
-    <input type="text" id="regName" placeholder="Full Name">
-    <input type="email" id="regEmail" placeholder="Email">
-    <input type="password" id="regPassword" placeholder="Password">
+  <div id="registerBox" class="fade">
+    <h2>Create Account</h2>
+
+    <div class="input-group">
+      <input type="text" id="regName" placeholder="Full Name">
+    </div>
+
+    <div class="input-group">
+      <input type="email" id="regEmail" placeholder="Email">
+    </div>
+
+    <div class="input-group">
+      <input type="password" id="regPassword" placeholder="Password">
+      <i class="fa-solid fa-eye eye-icon" onclick="togglePassword('regPassword', this)"></i>
+    </div>
+
     <button onclick="register()">Register</button>
     <div class="toggle" onclick="toggleForm()">Already have an account? Login</div>
   </div>
 
   <!-- LOGIN -->
-  <div id="loginBox" class="hidden">
-    <h2>Login</h2>
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Password">
+  <div id="loginBox" class="hidden fade">
+    <h2>Welcome Back</h2>
+
+    <div class="input-group">
+      <input type="email" id="loginEmail" placeholder="Email">
+    </div>
+
+    <div class="input-group">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <i class="fa-solid fa-eye eye-icon" onclick="togglePassword('loginPassword', this)"></i>
+    </div>
+
     <button onclick="login()">Login</button>
     <div class="toggle" onclick="toggleForm()">Don't have an account? Register</div>
   </div>
@@ -61,9 +177,27 @@
   );
 
   function toggleForm() {
-    document.getElementById("registerBox").classList.toggle("hidden");
-    document.getElementById("loginBox").classList.toggle("hidden");
+    const registerBox = document.getElementById("registerBox");
+    const loginBox = document.getElementById("loginBox");
+
+    registerBox.classList.toggle("hidden");
+    loginBox.classList.toggle("hidden");
+
+    registerBox.classList.add("fade");
+    loginBox.classList.add("fade");
+
     document.getElementById("message").innerText = "";
+  }
+
+  function togglePassword(id, icon) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.replace("fa-eye", "fa-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.replace("fa-eye-slash", "fa-eye");
+    }
   }
 
   function showMessage(msg, color = "red") {
@@ -77,9 +211,9 @@
     const email = regEmail.value.trim();
     const password = regPassword.value.trim();
 
-    if (!name || !email || !password) return showMessage("All fields required");
+    if (!name || !email || !password)
+      return showMessage("All fields required");
 
-    // Check if email already exists
     const { data: existing } = await supabaseClient
       .from("users")
       .select("id")
@@ -88,7 +222,6 @@
 
     if (existing) return showMessage("Email already registered");
 
-    // Insert new user
     const { data, error } = await supabaseClient
       .from("users")
       .insert([{ name, email, password }])
@@ -97,12 +230,11 @@
 
     if (error) return showMessage(error.message);
 
-    // Initialize funds
     await supabaseClient
       .from("funds")
       .insert([{ user_id: data.id, balance: 100000 }]);
 
-    showMessage("Registration successful! Please login.", "green");
+    showMessage("Registration successful! Please login.", "lightgreen");
     toggleForm();
   }
 
@@ -116,10 +248,10 @@
       .eq("email", email)
       .eq("password", password)
       .single();
-    console.log(data);
-    if (error || !data) return showMessage("Invalid email or password");
 
-    // Store session in sessionStorage
+    if (error || !data)
+      return showMessage("Invalid email or password");
+
     sessionStorage.setItem("userId", data.id);
     window.location.href = "trade.html";
   }

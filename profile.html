@@ -8,119 +8,164 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Segoe UI",Arial,sans-serif;
+}
+
 body{
-  margin:0;
-  background:linear-gradient(135deg,#0b0e11,#13161c);
-  color:#e6edf3;
-  font-family:"Segoe UI",Arial,sans-serif;
+background:#f4f6f9;
+color:#1f2937;
+animation:fadePage .6s ease;
+}
+
+@keyframes fadePage{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
 }
 
 .container{
-  max-width:900px;
-  margin:40px auto;
-  padding:20px;
+max-width:900px;
+margin:50px auto;
+padding:20px;
 }
 
+/* Title */
 h2{
-  color:#ff9800;
-  margin-bottom:20px;
+color:#2563eb;
+margin-bottom:25px;
+font-weight:700;
+letter-spacing:.5px;
 }
 
+/* Cards */
 .card{
-  background:#11161c;
-  border:1px solid #1f2933;
-  border-radius:12px;
-  padding:20px;
-  margin-bottom:25px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+background:#ffffff;
+border:1px solid #e5e7eb;
+border-radius:12px;
+padding:25px;
+margin-bottom:25px;
+box-shadow:0 6px 18px rgba(0,0,0,0.05);
+transition:all .25s ease;
 }
 
+.card:hover{
+transform:translateY(-4px);
+box-shadow:0 12px 28px rgba(0,0,0,0.08);
+}
+
+/* Balance Highlight */
 .balanceBox{
-  font-size:28px;
-  font-weight:bold;
-  background:linear-gradient(90deg,#00e5ff,#2962ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+font-size:32px;
+font-weight:700;
+color:#2563eb;
+margin-top:10px;
 }
 
+/* Labels */
 label{
-  display:block;
-  margin-top:12px;
-  margin-bottom:5px;
-  color:#9aa4af;
+display:block;
+margin-top:14px;
+margin-bottom:6px;
+color:#6b7280;
+font-weight:500;
 }
 
+/* Inputs */
 input{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:1px solid #2a3441;
-  background:#0b0e11;
-  color:#fff;
-  outline:none;
-  transition:0.2s;
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #d1d5db;
+background:#ffffff;
+color:#111827;
+outline:none;
+transition:all .25s ease;
 }
 
 input:focus{
-  border-color:#2962ff;
-  box-shadow:0 0 0 2px rgba(41,98,255,0.3);
+border-color:#2563eb;
+box-shadow:0 0 0 3px rgba(37,99,235,0.2);
 }
 
+/* Buttons */
 button{
-  padding:12px 18px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-  margin-top:15px;
-  transition:0.2s;
+padding:12px 20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:600;
+margin-top:15px;
+transition:all .2s ease;
 }
 
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 6px 16px rgba(0,0,0,0.15);
+}
+
+button:active{
+transform:scale(.97);
+}
+
+/* Primary */
 .primary{
-  background:#2962ff;
-  color:white;
+background:#2563eb;
+color:white;
 }
-
 .primary:hover{
-  background:#1e4ed8;
+background:#1d4ed8;
 }
 
+/* Deposit */
 .depositBtn{
-  background:#00c853;
-  color:white;
+background:#16a34a;
+color:white;
 }
-
 .depositBtn:hover{
-  background:#00a843;
+background:#15803d;
 }
 
+/* Withdraw */
 .withdrawBtn{
-  background:#ff5252;
-  color:white;
+background:#dc2626;
+color:white;
 }
-
 .withdrawBtn:hover{
-  background:#e04848;
+background:#b91c1c;
 }
 
+/* Row */
 .row{
-  display:flex;
-  gap:15px;
-  margin-top:15px;
+display:flex;
+gap:15px;
+margin-top:15px;
 }
 
 .row input{
-  flex:1;
+flex:1;
 }
 
+/* Messages */
 .success{
-  color:#00e676;
-  margin-top:10px;
+color:#16a34a;
+margin-top:12px;
+font-weight:500;
+animation:fadeMsg .4s ease;
 }
 
 .error{
-  color:#ff5252;
-  margin-top:10px;
+color:#dc2626;
+margin-top:12px;
+font-weight:500;
+animation:fadeMsg .4s ease;
+}
+
+@keyframes fadeMsg{
+from{opacity:0;transform:translateY(5px);}
+to{opacity:1;transform:translateY(0);}
 }
 </style>
 </head>

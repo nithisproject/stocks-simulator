@@ -10,22 +10,127 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-body{background:#0b0e11;color:#fff;font-family:"Segoe UI",Arial,sans-serif;padding:20px}
-h2{color:#ff9800}
-button{padding:8px 15px;margin-top:10px;background:#2962ff;border:none;border-radius:6px;color:#fff;cursor:pointer}
-table{width:100%;border-collapse:collapse;margin-top:20px;}
-th,td{border:1px solid #333;padding:8px;text-align:center;}
-th{background:#151b23;color:#00e5ff;}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Segoe UI",Arial,sans-serif;
+}
+
+body{
+background:#f4f6f9;
+color:#1f2937;
+padding:30px;
+animation:fadePage .6s ease;
+}
+
+@keyframes fadePage{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+h2{
+color:#2563eb;
+margin-bottom:20px;
+font-weight:700;
+}
+
+/* Buttons */
+.buttonGroup{
+margin-bottom:15px;
+}
+
+button{
+padding:9px 16px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+margin-right:10px;
+transition:all .2s ease;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+}
+
+.exportBtn{
+background:#2563eb;
+color:white;
+}
+
+.deleteBtn{
+background:#dc2626;
+color:white;
+}
+
+/* Table */
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+background:#ffffff;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+
+th,td{
+padding:12px;
+text-align:center;
+border-bottom:1px solid #e5e7eb;
+}
+
+th{
+background:#f9fafb;
+color:#2563eb;
+font-weight:600;
+}
+
+tr{
+transition:background .2s ease;
+}
+
+tr:hover{
+background:#f3f4f6;
+}
+
+input[type="checkbox"]{
+width:16px;
+height:16px;
+cursor:pointer;
+}
+
+.pnl-positive{
+color:#16a34a;
+font-weight:600;
+}
+
+.pnl-negative{
+color:#dc2626;
+font-weight:600;
+}
+
+@media(max-width:768px){
+body{padding:15px;}
+table{font-size:13px;}
+}
 </style>
 </head>
 <body>
 
 <h2>Trading History</h2>
-<button onclick="exportPDF()">Export as PDF (Landscape)</button>
+
+<div class="buttonGroup">
+<button class="exportBtn" onclick="exportPDF()">Export PDF</button>
+<button class="deleteBtn" onclick="deleteSelected()">Delete Selected</button>
+</div>
 
 <table>
 <thead>
 <tr>
+<th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
 <th>Type</th>
 <th>Qty</th>
 <th>Price</th>
@@ -59,32 +164,64 @@ async function loadHistory(){
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error(error);
     alert("Error loading history");
     return;
   }
 
-  if (data) {
-    transactionData = data;
+  transactionData = data || [];
 
-    const tbody = document.getElementById('historyBody');
-    tbody.innerHTML = '';
+  const tbody = document.getElementById('historyBody');
+  tbody.innerHTML = '';
 
-    data.forEach(tr => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${tr.type}</td>
-          <td>${tr.qty ?? '-'}</td>
-          <td>${tr.price ?? '-'}</td>
-          <td>${tr.pnl ?? 0}</td>
-          <td>${new Date(tr.created_at).toLocaleString()}</td>
-        </tr>
-      `;
-    });
-  }
+  transactionData.forEach(tr => {
+    const pnlClass = tr.pnl >= 0 ? "pnl-positive" : "pnl-negative";
+
+    tbody.innerHTML += `
+      <tr>
+        <td><input type="checkbox" class="rowCheck" value="${tr.id}"></td>
+        <td>${tr.type}</td>
+        <td>${tr.qty ?? '-'}</td>
+        <td>${tr.price ?? '-'}</td>
+        <td class="${pnlClass}">${tr.pnl ?? 0}</td>
+        <td>${new Date(tr.created_at).toLocaleString()}</td>
+      </tr>
+    `;
+  });
 }
 
 loadHistory();
+
+// ================= SELECT ALL =================
+function toggleSelectAll(source){
+  document.querySelectorAll(".rowCheck").forEach(cb=>{
+    cb.checked = source.checked;
+  });
+}
+
+// ================= DELETE SELECTED =================
+async function deleteSelected(){
+  const checked = document.querySelectorAll(".rowCheck:checked");
+
+  if(checked.length === 0){
+    alert("No rows selected");
+    return;
+  }
+
+  const ids = Array.from(checked).map(cb => cb.value);
+
+  const { error } = await supabaseClient
+    .from('transactions')
+    .delete()
+    .in('id', ids);
+
+  if(error){
+    alert("Error deleting records");
+    return;
+  }
+
+  alert("Selected records deleted successfully");
+  loadHistory();
+}
 
 // ================= EXPORT PDF =================
 function exportPDF() {
@@ -95,7 +232,6 @@ function exportPDF() {
 
   const { jsPDF } = window.jspdf;
 
-  // Landscape A4
   const doc = new jsPDF({
     orientation: "landscape",
     unit: "mm",
@@ -123,8 +259,7 @@ function exportPDF() {
     body: tableRows,
     startY: 20,
     theme: "grid",
-    styles: { halign: 'center' },
-    headStyles: { fillColor: [21, 27, 35] }
+    styles: { halign: 'center' }
   });
 
   doc.save("Trading_History.pdf");
