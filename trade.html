@@ -62,7 +62,6 @@ function logout() { sessionStorage.clear(); window.location.href = 'index.html';
 
 <div id="layout">
 
-<!-- SIDEBAR -->
 <div id="sidebar">
 <a href="trade.html" class="navBtn">📈 Trade</a>
 <a href="profile.html" class="navBtn">👤 Profile</a>
@@ -87,7 +86,6 @@ To<br>
 </div>
 </div>
 
-<!-- CENTER -->
 <div id="center">
 <div style="flex:1;padding:10px;">
 <canvas id="chart"></canvas>
@@ -106,7 +104,6 @@ To<br>
 </div>
 </div>
 
-<!-- RIGHT PANEL -->
 <div id="right">
 <div class="panel">
 Qty
@@ -141,32 +138,24 @@ let price=0,dataSeries=[],pointer=0,candles=[];
 let balance=0,position=0,avgPrice=0;
 let openOrders=[],tradeHistory=[];
 
-// Save transaction to Supabase
 async function saveTransaction(type, quantity, tradePrice, pnlValue = 0) {
-  if (!userId) { alert("User not logged in"); return; }
-  const { error } = await supabaseClient
-    .from("transactions")
-    .insert([{
-      user_id: userId,
-      type,
-      qty: +quantity.toFixed(2),
-      price: +tradePrice.toFixed(2),
-      pnl: +pnlValue.toFixed(2)
-    }]);
-  if (error) console.error("Transaction insert error:", error);
+  if (!userId) return;
+  await supabaseClient.from("transactions").insert([{
+    user_id: userId,
+    type,
+    qty: +quantity.toFixed(2),
+    price: +tradePrice.toFixed(2),
+    pnl: +pnlValue.toFixed(2)
+  }]);
 }
 
-// Update balance in Supabase
 async function updateBalanceInDB() {
   if (!userId) return;
-  const { error } = await supabaseClient
-    .from('funds')
-    .update({ balance: +balance.toFixed(2) })
-    .eq('user_id', userId);
-  if (error) console.error("Error updating balance in DB:", error);
+  await supabaseClient.from('funds')
+  .update({ balance: +balance.toFixed(2) })
+  .eq('user_id', userId);
 }
 
-// Tabs
 function showTab(id,e){
 document.querySelectorAll(".tabContent").forEach(d=>d.style.display="none");
 document.getElementById(id).style.display="block";
@@ -174,55 +163,27 @@ document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
 e.target.classList.add("active");
 }
 
-// Load user funds
 async function loadFund(){
 const {data}=await supabaseClient.from('funds').select('*').eq('user_id',userId).single();
 if(data){balance=parseFloat(data.balance);updateUI();}
 }
 loadFund();
 
-// Chart
 const ctx=document.getElementById("chart").getContext("2d");
 const chart=new Chart(ctx,{type:"line",data:{labels:[],datasets:[{data:[],borderColor:"#00e5ff",pointRadius:0}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false}}}});
 
-// ================= LOAD NSE DATA =================
 async function loadFromDatabase() {
-  const from = document.getElementById("fromDate").value;
-  const to = document.getElementById("toDate").value;
-  if (!from || !to) { alert("Select both dates"); return; }
-
-  try {
-    const { data, error } = await supabaseClient.from("nse").select("*");
-    if (error) { alert("Error fetching NSE data"); return; }
-    const fromDate = new Date(from), toDate = new Date(to);
-    const filtered = data.filter(row => row.trade_date && new Date(row.trade_date) >= fromDate && new Date(row.trade_date) <= toDate);
-    if (filtered.length===0){ alert("No NSE data found"); return; }
-    filtered.sort((a,b)=>new Date(a.trade_date)-new Date(b.trade_date));
-    dataSeries = filtered.map(row => ({ date: row.trade_date, open: row.open, high: row.high, low: row.low, close: row.close }));
-    pointer=0;candles=[];chart.data.labels=[];chart.data.datasets[0].data=[];chart.update(); loop();
-  } catch(err){console.error(err); alert("Unexpected NSE error");}
+const {data}=await supabaseClient.from("nse").select("*");
+dataSeries=data.map(r=>({date:r.trade_date,close:r.close}));
+pointer=0;candles=[];loop();
 }
 
-// ================= LOAD BITCOIN DATA =================
 async function loadBitcoinFromDatabase() {
-  const from = document.getElementById("btcFromDate").value;
-  const to = document.getElementById("btcToDate").value;
-  if (!from || !to) { alert("Select both dates"); return; }
-
-  try {
-    const { data, error } = await supabaseClient.from("btc_market_data").select("*");
-    if (error) { alert("Error fetching BTC data"); console.error(error); return; }
-    if (!data || data.length===0){ alert("No BTC data found"); return; }
-    const fromDate = new Date(from), toDate = new Date(to);
-    const filtered = data.filter(row => row.date && new Date(row.date) >= fromDate && new Date(row.date) <= toDate);
-    if (filtered.length===0){ alert("No BTC data in range"); return; }
-    filtered.sort((a,b)=>new Date(a.date)-new Date(b.date));
-    dataSeries = filtered.map(row => ({ date: row.date, open: row.btc_market_price, high: row.btc_market_price, low: row.btc_market_price, close: row.btc_market_price }));
-    pointer=0;candles=[];chart.data.labels=[];chart.data.datasets[0].data=[];chart.update(); loop();
-  } catch(err){console.error(err); alert("Unexpected BTC error");}
+const {data}=await supabaseClient.from("btc_market_data").select("*");
+dataSeries=data.map(r=>({date:r.date,close:r.btc_market_price}));
+pointer=0;candles=[];loop();
 }
 
-// Trading logic
 function qty(){return +document.getElementById("qty").value;}
 function limit(){return +document.getElementById("limit").value;}
 
@@ -233,37 +194,75 @@ renderPositions(); renderOrders();
 }
 
 async function buyMarket() {
-  let q = qty(), cost = q * price;
-  if (balance >= cost) {
-    balance -= cost;
-    avgPrice = ((avgPrice * position) + (price * q)) / (position + q);
-    position += q;
-    logTrade("BUY", q, price);
-    updateUI();
-    await saveTransaction("BUY", q, price, 0);
-    await updateBalanceInDB();
-  }
+let q = qty(), cost = q * price;
+if (balance >= cost) {
+balance -= cost;
+avgPrice = ((avgPrice * position) + (price * q)) / (position + q);
+position += q;
+logTrade("BUY", q, price);
+updateUI();
+await saveTransaction("BUY", q, price, 0);
+await updateBalanceInDB();
+}
 }
 
 async function sellMarket() {
-  let q = qty();
-  if (position >= q) {
-    let realizedPnl = (price - avgPrice) * q;
-    balance += q * price;
-    position -= q;
-    if (position===0) avgPrice=0;
-    logTrade("SELL", q, price);
-    updateUI();
-    await saveTransaction("SELL", q, price, realizedPnl);
-    await updateBalanceInDB();
-  }
+let q = qty();
+if (position >= q) {
+let realizedPnl = (price - avgPrice) * q;
+balance += q * price;
+position -= q;
+if (position===0) avgPrice=0;
+logTrade("SELL", q, price);
+updateUI();
+await saveTransaction("SELL", q, price, realizedPnl);
+await updateBalanceInDB();
+}
 }
 
-function buyLimit(){openOrders.push({type:"BUY",qty:+qty().toFixed(2),price:+limit().toFixed(2)});renderOrders();}
-function sellLimit(){openOrders.push({type:"SELL",qty:+qty().toFixed(2),price:+limit().toFixed(2)});renderOrders();}
+function buyLimit(){openOrders.push({type:"BUY",qty:qty(),price:limit()});renderOrders();}
+function sellLimit(){openOrders.push({type:"SELL",qty:qty(),price:limit()});renderOrders();}
 
-function renderOrders(){document.getElementById("orders").innerHTML=openOrders.map(o=>`${o.type} ${o.qty.toFixed(2)} @ ${o.price.toFixed(2)}`).join("<br>");}
-function renderPositions(){document.getElementById("positions").innerHTML=`Qty: ${position.toFixed(2)}<br>Avg: ${avgPrice.toFixed(2)}`;}
+function renderOrders(){
+document.getElementById("orders").innerHTML=openOrders.map(o=>`${o.type} ${o.qty} @ ${o.price}`).join("<br>");
+}
+
+function renderPositions(){
+document.getElementById("positions").innerHTML=`Qty: ${position}<br>Avg: ${avgPrice.toFixed(2)}`;
+}
+
+async function executeLimitOrders(){
+for(let i=openOrders.length-1;i>=0;i--){
+let o=openOrders[i];
+
+if(o.type==="BUY" && price<=o.price){
+let cost=o.qty*price;
+if(balance>=cost){
+balance-=cost;
+avgPrice=((avgPrice*position)+(price*o.qty))/(position+o.qty);
+position+=o.qty;
+logTrade("BUY",o.qty,price);
+await saveTransaction("BUY",o.qty,price,0);
+await updateBalanceInDB();
+openOrders.splice(i,1);
+}
+}
+
+if(o.type==="SELL" && price>=o.price){
+if(position>=o.qty){
+let pnl=(price-avgPrice)*o.qty;
+balance+=o.qty*price;
+position-=o.qty;
+if(position===0)avgPrice=0;
+logTrade("SELL",o.qty,price);
+await saveTransaction("SELL",o.qty,price,pnl);
+await updateBalanceInDB();
+openOrders.splice(i,1);
+}
+}
+}
+renderOrders();
+}
 
 function updateUI(){
 document.getElementById("bal").innerText=balance.toFixed(2);
@@ -275,16 +274,23 @@ document.getElementById("pnl").innerText=pnl.toFixed(2);
 document.getElementById("pnlTop").innerText=pnl.toFixed(2);
 }
 
-function loop(){
+async function loop(){
 if(pointer>=dataSeries.length) return;
+
 let row=dataSeries[pointer++];
 price=row.close;
+
+await executeLimitOrders();
+
 candles.push(price);
 if(candles.length>300)candles.shift();
+
 chart.data.labels=candles.map((_,i)=>i);
-chart.data.datasets[0].data=candles.map(p=>+p.toFixed(2));
+chart.data.datasets[0].data=candles;
 chart.update();
+
 updateUI();
+
 setTimeout(loop,1500);
 }
 </script>
